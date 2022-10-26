@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, Column,String,Integer,Float
-import dbase_ops
-from dbase_ops import Employee, Cake, Ingredient, Assignment
+from dbase_init import populate_dummy_data
+from dbase_orm import Employee, Cake, Ingredient, Assignment
 
 # connect to database
 engine = create_engine('sqlite:///data/db.sqlite3', echo=True)
-dbase_ops.populate_dummy_data(engine)
+populate_dummy_data(engine)
 
 app = FastAPI()
 
