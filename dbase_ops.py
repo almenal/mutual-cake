@@ -31,3 +31,55 @@ class Assignment(Base):
     toId   = relationship("Employee", back_populates = "Assignments")
     cakeId = relationship("Cake",     back_populates = "Assignments")
 
+def populate_dummy_data(engine):
+    with Session(engine) as session:
+        employees = [
+            Employee(name = "Michael Scott", 
+                    allergies = [Ingredient(name = "milk"), Ingredient(name = "nuts")]),
+            Employee(name = "Dwight Schrutte", 
+                    allergies = [Ingredient(name = "milk"), Ingredient(name = "eggs")]),
+            Employee(name = "Jim Halpert", 
+                    allergies = [Ingredient(name = "chocolate")]),
+            Employee(name = "Pam Beesly")
+        ]
+        cakes = [
+            
+            Cake(
+                name =  "Lemon cheesecake - strawberry",
+                previewDescription = "A cheesecake made of lemon",
+                ingredients = [
+                    Ingredient(name = "cheese"), Ingredient(name = "eggs"), 
+                    Ingredient(name = "flour"), Ingredient("cookies"), 
+                    Ingredient("wheat"), Ingredient("strawberry")
+                    ]
+                ),
+            Cake(
+                name =  "Victoria sponge",
+                previewDescription = "Sponge with jam",
+                ingredients = [
+                    Ingredient(name = "raspberry"), Ingredient(name = "cream"), 
+                    Ingredient(name = "eggs"), Ingredient("flour"), 
+                    Ingredient("margarine")
+                    ]
+                ),
+            Cake(
+                name =  "Carrot cake",
+                previewDescription = "Bugs bunnys favourite",
+                ingredients = [
+                    Ingredient(name = "carrot"), Ingredient(name = "eggs"), 
+                    Ingredient(name = "flour"), Ingredient("cinammon"), 
+                    Ingredient("nuts")
+                    ]
+                ),
+            Cake(
+                name =  "Vegan sponge cake",
+                previewDescription = "For that one friend",
+                ingredients = [
+                    Ingredient(name = "oat"), Ingredient(name = "flour"), 
+                    Ingredient(name = "bicarbonate"), Ingredient("strawberry"),
+                    ]
+                ),
+        ]
+        session.add_all(employees)
+        session.add_all(cakes)
+        session.commit()
