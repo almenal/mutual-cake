@@ -1,5 +1,3 @@
-import json
-from turtle import back
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import declarative_base, relationship
