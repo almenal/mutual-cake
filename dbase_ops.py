@@ -3,6 +3,7 @@ from turtle import back
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.inspection import inspect
 
 Base = declarative_base()
 
@@ -47,6 +48,9 @@ class Assignment(Base):
     # cakeId = Column(ForeignKey("cakes.id"))
 
 def populate_dummy_data(engine):
+    dbase_has_tables = inspect(engine).get_table_names() != []
+    if dbase_has_tables:
+        return
     Base.metadata.create_all(engine)
     with Session(engine) as session:
         employees = [
