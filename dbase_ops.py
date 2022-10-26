@@ -6,18 +6,32 @@ from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
+employees_allergies_table = Table(
+    "employees_allergies",
+    Base.metadata,
+    Column("user_id",     ForeignKey("employees.id")),
+    Column("allergen_id", ForeignKey("ingredients.id")),
+)
+
+cake_ingredients_table = Table(
+    "cake_ingredients",
+    Base.metadata,
+    Column("cake_id",       ForeignKey("cakes.id")),
+    Column("ingredient_id", ForeignKey("ingredients.id")),
+)
+
 class Employee(Base):
     __tablename__ = "employees"
     id   = Column(Integer, primary_key = True)
-    name = Column(String),
-    allergies = relationship("Ingredient", back_populates = "Employee")
+    name = Column(String)
+    allergies = relationship("Ingredient", secondary = employees_allergies_table)
 
 class Cake(Base):
     __tablename__ = "cakes"
     id   = Column(Integer, primary_key = True)
-    name = Column(String),
+    name = Column(String)
     previewDescription = Column(String)
-    ingredients = relationship("Ingredient", back_populates = "Cake")
+    ingredients = relationship("Ingredient", secondary = cake_ingredients_table)
 
 class Ingredient(Base):
     __tablename__ = "ingredients"
@@ -27,11 +41,13 @@ class Ingredient(Base):
 class Assignment(Base):
     __tablename__ = "assignments"
     id = Column(Integer, primary_key = True)
-    fromId = relationship("Employee", back_populates = "Assignments")
-    toId   = relationship("Employee", back_populates = "Assignments")
-    cakeId = relationship("Cake",     back_populates = "Assignments")
+    #TODO
+    # fromId = Column(ForeignKey("employees.id"))
+    # toId   = Column(ForeignKey("employees.id"))
+    # cakeId = Column(ForeignKey("cakes.id"))
 
 def populate_dummy_data(engine):
+    Base.metadata.create_all(engine)
     with Session(engine) as session:
         employees = [
             Employee(name = "Michael Scott", 
@@ -49,8 +65,8 @@ def populate_dummy_data(engine):
                 previewDescription = "A cheesecake made of lemon",
                 ingredients = [
                     Ingredient(name = "cheese"), Ingredient(name = "eggs"), 
-                    Ingredient(name = "flour"), Ingredient("cookies"), 
-                    Ingredient("wheat"), Ingredient("strawberry")
+                    Ingredient(name = "flour"), Ingredient(name = "cookies"), 
+                    Ingredient(name = "wheat"), Ingredient(name = "strawberry")
                     ]
                 ),
             Cake(
@@ -58,8 +74,8 @@ def populate_dummy_data(engine):
                 previewDescription = "Sponge with jam",
                 ingredients = [
                     Ingredient(name = "raspberry"), Ingredient(name = "cream"), 
-                    Ingredient(name = "eggs"), Ingredient("flour"), 
-                    Ingredient("margarine")
+                    Ingredient(name = "eggs"), Ingredient(name = "flour"), 
+                    Ingredient(name = "margarine")
                     ]
                 ),
             Cake(
@@ -67,8 +83,8 @@ def populate_dummy_data(engine):
                 previewDescription = "Bugs bunnys favourite",
                 ingredients = [
                     Ingredient(name = "carrot"), Ingredient(name = "eggs"), 
-                    Ingredient(name = "flour"), Ingredient("cinammon"), 
-                    Ingredient("nuts")
+                    Ingredient(name = "flour"), Ingredient(name = "cinammon"), 
+                    Ingredient(name = "nuts")
                     ]
                 ),
             Cake(
@@ -76,7 +92,7 @@ def populate_dummy_data(engine):
                 previewDescription = "For that one friend",
                 ingredients = [
                     Ingredient(name = "oat"), Ingredient(name = "flour"), 
-                    Ingredient(name = "bicarbonate"), Ingredient("strawberry"),
+                    Ingredient(name = "bicarbonate"), Ingredient(name = "strawberry"),
                     ]
                 ),
         ]
