@@ -40,10 +40,9 @@ class Ingredient(Base):
 class Assignment(Base):
     __tablename__ = "assignments"
     id = Column(Integer, primary_key = True)
-    #TODO
-    # fromId = Column(ForeignKey("employees.id"))
-    # toId   = Column(ForeignKey("employees.id"))
-    # cakeId = Column(ForeignKey("cakes.id"))
+    fromId = Column(ForeignKey("employees.id"))
+    toId   = Column(ForeignKey("employees.id"))
+    cakeId = Column(ForeignKey("cakes.id"))
 
 def populate_dummy_data(engine):
     dbase_has_tables = inspect(engine).get_table_names() != []
@@ -51,53 +50,64 @@ def populate_dummy_data(engine):
         return
     Base.metadata.create_all(engine)
     with Session(engine) as session:
-        employees = [
-            Employee(name = "Michael Scott", 
-                    allergies = [Ingredient(name = "milk"), Ingredient(name = "nuts")]),
-            Employee(name = "Dwight Schrutte", 
-                    allergies = [Ingredient(name = "milk"), Ingredient(name = "eggs")]),
-            Employee(name = "Jim Halpert", 
-                    allergies = [Ingredient(name = "chocolate")]),
-            Employee(name = "Pam Beesly")
-        ]
-        cakes = [
-            
-            Cake(
-                name =  "Lemon cheesecake - strawberry",
-                previewDescription = "A cheesecake made of lemon",
-                ingredients = [
-                    Ingredient(name = "cheese"), Ingredient(name = "eggs"), 
-                    Ingredient(name = "flour"), Ingredient(name = "cookies"), 
-                    Ingredient(name = "wheat"), Ingredient(name = "strawberry")
-                    ]
-                ),
-            Cake(
-                name =  "Victoria sponge",
-                previewDescription = "Sponge with jam",
-                ingredients = [
-                    Ingredient(name = "raspberry"), Ingredient(name = "cream"), 
-                    Ingredient(name = "eggs"), Ingredient(name = "flour"), 
-                    Ingredient(name = "margarine")
-                    ]
-                ),
-            Cake(
-                name =  "Carrot cake",
-                previewDescription = "Bugs bunnys favourite",
-                ingredients = [
-                    Ingredient(name = "carrot"), Ingredient(name = "eggs"), 
-                    Ingredient(name = "flour"), Ingredient(name = "cinammon"), 
-                    Ingredient(name = "nuts")
-                    ]
-                ),
-            Cake(
-                name =  "Vegan sponge cake",
-                previewDescription = "For that one friend",
-                ingredients = [
-                    Ingredient(name = "oat"), Ingredient(name = "flour"), 
-                    Ingredient(name = "bicarbonate"), Ingredient(name = "strawberry"),
-                    ]
-                ),
-        ]
-        session.add_all(employees)
+
+        # Add employees
+        michael = Employee(name = "Michael Scott", 
+                allergies = [Ingredient(name = "milk"), Ingredient(name = "nuts")])
+        dwight = Employee(name = "Dwight Schrutte", 
+                allergies = [Ingredient(name = "milk"), Ingredient(name = "eggs")])
+        jim = Employee(name = "Jim Halpert", 
+                allergies = [Ingredient(name = "chocolate")])
+        pam = Employee(name = "Pam Beesly")
+        session.add_all([michael, dwight, jim, pam])
+        session.flush() # ensure employees have id assigned
+        
+        # Add cakes
+        lemon = Cake(
+            name =  "Lemon cheesecake - strawberry",
+            previewDescription = "A cheesecake made of lemon",
+            ingredients = [
+                Ingredient(name = "cheese"), Ingredient(name = "eggs"), 
+                Ingredient(name = "flour"), Ingredient(name = "cookies"), 
+                Ingredient(name = "wheat"), Ingredient(name = "strawberry")
+                ]
+            )
+        victoria = Cake(
+            name =  "Victoria sponge",
+            previewDescription = "Sponge with jam",
+            ingredients = [
+                Ingredient(name = "raspberry"), Ingredient(name = "cream"), 
+                Ingredient(name = "eggs"), Ingredient(name = "flour"), 
+                Ingredient(name = "margarine")
+                ]
+            )
+        carrot = Cake(
+            name =  "Carrot cake",
+            previewDescription = "Bugs bunnys favourite",
+            ingredients = [
+                Ingredient(name = "carrot"), Ingredient(name = "eggs"), 
+                Ingredient(name = "flour"), Ingredient(name = "cinammon"), 
+                Ingredient(name = "nuts")
+                ]
+            )
+        vegan = Cake(
+            name =  "Vegan sponge cake",
+            previewDescription = "For that one friend",
+            ingredients = [
+                Ingredient(name = "oat"), Ingredient(name = "flour"), 
+                Ingredient(name = "bicarbonate"), Ingredient(name = "strawberry"),
+                ]
+            )
+        cakes = [lemon, victoria, carrot, vegan]
         session.add_all(cakes)
+        session.flush() # ensure cakes have id assigned
+
+        # Now that both employees and cakes have ids, create assignments
+        assignments = [
+            Assignment(fromId = michael.id, toId =  dwight.id, cakeId = vegan.id),
+            Assignment(fromId = dwight.id, toId = pam.id, cakeId = lemon.id)
+        ]
+        session.add_all(assignments)
+
+        # Commit all
         session.commit()
