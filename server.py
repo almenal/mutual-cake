@@ -25,9 +25,15 @@ def fetch_cake_data(cake_id:int):
         return sess.query(Cake).filter(Cake.id == cake_id).one()
 
 @app.get("/ingredients/{ingredient_id}")
-def fetch_employee_data(ingredient_id:int):
+def fetch_ingredient_data(ingredient_id:int):
     ""
     with Session(engine) as sess:
         return sess.query(Ingredient).filter(Ingredient.id == ingredient_id).one()
+
+@app.get("/assignments/{assignment_id}")
+def fetch_assignment_data(assignment_id:int):
+    ""
+    with Session(engine) as sess:
+        return sess.query(Assignment).filter(Assignment.id == assignment_id).one()
 
 # endregion -------------------------------------
