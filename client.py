@@ -144,9 +144,8 @@ def main(page: Page):
                 )
             )
         if page.route == "/main":
-            # TODO get this from REST API
-            birthday_person = "Jim Halpert"
-            cake_to_bake = "Straberry cheesecake"
+            birthday_person = get_assigned_employee()
+            cake_to_bake    = get_assigned_cake()
             page.views.append(
                 View(
                     route = "/main",
@@ -198,16 +197,16 @@ def log_in(page):
     login_view = page.views[-1]
     user   = login_view.controls[1].content.value
     logger.info(f"User is '{user}'")
-    user_data_respose = requests.get(
+    user_data_response = requests.get(
         url = f"{SERVER_URL}/employees/{user}"
     )
-    user_data = user_data_respose.json() # TODO check status code, etc
+    user_data = user_data_response.json() # TODO check status code, etc
     if user_data is None:
         logger.info(f"User {user} not registered, preparing sign-up sheet")
-        page.go("/signup")
+        page.go("/signup") #TODO flag error instead of going straight to signup
         return
     logger.info(f"Successfully retrieved details for user {user}, heading to main")
-    usr_cache.write_text(json.dumps(user_data))
+    usr_cache.write_text(json.dumps(user_data) + '\n')
     page.go("/main")
 
 def sign_up_user(page):
@@ -223,6 +222,7 @@ def sign_up_user(page):
     allergies = [box.label for box in allergies_row.controls if box.value]
     logger.info(f"Collected user data: Name='{user_id}'; DOB='{dob_str}'; "
                 f"Allergies='{allergies}'")
+    #TODO Check user does not already exist!
     #Budle and do POST request
     data = {
         "name": user_id,
@@ -234,9 +234,15 @@ def sign_up_user(page):
         data = json.dumps(data),
         headers = {'Content-type': 'application/json'}
     )
-
     #Switch to main cake dashboard
     page.go("/main")
+
+def get_assigned_employee():
+    pass
+
+def get_assigned_cake():
+    pass
+
 
 def clear_cache():
     usr_cache.unlink()
