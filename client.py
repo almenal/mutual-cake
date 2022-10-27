@@ -141,7 +141,8 @@ def main(page: Page):
                                         on_click= lambda _: sign_up_user(page)),
                     ],
                     vertical_alignment = "center",
-                    horizontal_alignment = "center"
+                    horizontal_alignment = "center",
+                    scroll='auto'
                 )
             )
         if page.route == "/main":
