@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
+from xml.etree.ElementInclude import LimitedRecursiveIncludeError
+from click import option
 import requests
 import json
 import logging
 from pathlib import Path
+from calendar import month_abbr
+from datetime import datetime
 import flet
 from flet import (
-    Page, View, Container, AppBar,
-    Image, Text,
-    TextField,  ElevatedButton,
-    margin
+    Page, View, Container, AppBar, Row, Column,
+    Image, Text, Markdown,
+    TextField,  ElevatedButton, Dropdown, Slider, Checkbox,
+    margin, dropdown
 )
 
 logging.basicConfig(
@@ -51,8 +55,46 @@ def main(page: Page):
             )
         )
         if page.route == "/signup":
-            # TODO create sign-up form
-            pass
+            # def check_is_valid_day(e):
+            #     day_is_valid = int(e) > 0 and int(e) <= 31 
+            #     if
+            page.views.append(
+                View(
+                    route = "/signup",
+                    controls = [
+                        Markdown("""# Welcome to MutualCake `TM`
+                        Pleae fill in your details to continue"""),
+                        Container(
+                            content = TextField(label = None, hint_text = "Choose a user ID"),
+                            width = 600,
+                        ),
+                        Row(
+                            controls = [
+                                Slider(value = 1, min = 1,max = 31,
+                                        divisions = 31, label = "{value}"),
+                                Dropdown(options=[
+                                    dropdown.Option(month) for month in
+                                    month_abbr if month
+                                ]),
+                                Slider(value = 1999, min = 1900, max = datetime.now().year,
+                                        divisions = 31, label = "{value}"),
+                            ]
+                        ),
+                        Container(
+                            content = Column(controls = [
+                                Checkbox(label = "Eggs"),
+                                Checkbox(label = "Milk"),
+                                Checkbox(label = "Nuts"),
+                                Checkbox(label = "Chocolate"),
+
+                            ])
+                        ),
+                        ElevatedButton("Sign up", on_click= lambda _: sign_up_user(page)),
+                    ],
+                    vertical_alignment = "center",
+                    horizontal_alignment = "center"
+                )
+            )
         if page.route == "/main":
             page.views.append(
                 View(
@@ -91,5 +133,8 @@ def log_in(page):
     logger.info(f"Successfully retrieved details for user {user}, heading to main")
     usr_cache.write_text(json.dumps(user_data))
     page.go("/main")
+
+def sign_up_user(page):
+    pass
 
 flet.app(target=main, assets_dir = "assets")
