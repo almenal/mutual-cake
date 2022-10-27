@@ -66,14 +66,12 @@ def main(page: Page):
             )
         )
         if page.route == "/signup":
-            # def check_is_valid_day(e):
-            #     day_is_valid = int(e) > 0 and int(e) <= 31 
-            #     if
             page.views.append(
                 View(
                     route = "/signup",
                     controls = [
-                        AppBar(title=Text("Sign up"), bgcolor="#f5c300"),
+                        AppBar(title=Text("Sign up"), 
+                                color = "#000000", bgcolor="#f5c300"),
                         Markdown("# Welcome to MutualCake ™️"),
                         Markdown("Please fill in your details to continue"),
                         
@@ -150,7 +148,8 @@ def main(page: Page):
                 View(
                     route = "/main",
                     controls = [
-                        AppBar(title=Text("Main dashboard"), bgcolor="#f5c300"),
+                        AppBar(title=Text("Main dashboard"), 
+                                color = "#000000", bgcolor="#f5c300"),
                         ElevatedButton("Do you like to bake cakes?"),
                     ],
                     vertical_alignment = "center",
