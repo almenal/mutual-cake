@@ -11,8 +11,8 @@ import flet
 from flet import (
     Page, View, Container, AppBar, Row, Column, GridView, Divider,
     Image, Text, Markdown,
-    TextField,  ElevatedButton, Dropdown, Slider, Checkbox,
-    margin, dropdown
+    TextField,  ElevatedButton, TextButton, Dropdown, Slider, Checkbox,
+    margin, dropdown, alignment
 )
 
 logging.basicConfig(
@@ -41,15 +41,24 @@ def main(page: Page):
                 route = "/login",
                 controls = [
                     Container(
-                        content = Image(src = "logo.png", width = 150, height = 150),
+                        content = Image(src="logo.png", width=150, height=150),
                         margin = margin.only(top = 50, bottom = 50)
                     ),
                     Container(
                         content = TextField(label = None,
                         hint_text = "Enter your user ID"),
-                        width = 600,
+                        width = 400,
                     ),
                     ElevatedButton("Log in", on_click = lambda _: log_in(page)),
+                    Divider(height = 50, thickness = 0),
+                    Container(
+                        Row(controls = [
+                            Markdown("Not a member yet?"),
+                            TextButton(content = Markdown("**Sign up**"),
+                                        on_click = lambda _: page.go("/signup")),
+                        ]),
+                        margin = margin.only(top = 50),
+                    ),
                 ],
                 vertical_alignment = "center",
                 horizontal_alignment = "center"
@@ -63,6 +72,7 @@ def main(page: Page):
                 View(
                     route = "/signup",
                     controls = [
+                        AppBar(title=Text("Sign up"), bgcolor="#f5c300"),
                         Markdown("# Welcome to MutualCake ™️"),
                         Markdown("Please fill in your details to continue"),
                         
@@ -84,7 +94,8 @@ def main(page: Page):
                             controls = [
                                 Container(
                                     Dropdown(label = "Day", options = [
-                                        dropdown.Option(day) for day in range(1,32)
+                                        dropdown.Option(day)
+                                        for day in range(1,32)
                                     ]),
                                     width = 180
                                 ),
@@ -98,7 +109,8 @@ def main(page: Page):
                                 Container(
                                     Dropdown(label = "Year", options=[
                                         dropdown.Option(year) 
-                                        for year in range(datetime.now().year, 1900, -1)
+                                        for year in \
+                                        range(datetime.now().year, 1900, -1)
                                     ]),
                                     width = 180
                                 )
@@ -124,7 +136,8 @@ def main(page: Page):
                             )
                         ),
                         Divider(height = 30, thickness = 3),
-                        ElevatedButton("Sign up", on_click= lambda _: sign_up_user(page)),
+                        ElevatedButton("Sign up",
+                                        on_click= lambda _: sign_up_user(page)),
                     ],
                     vertical_alignment = "center",
                     horizontal_alignment = "center"
@@ -135,7 +148,7 @@ def main(page: Page):
                 View(
                     route = "/main",
                     controls = [
-                        AppBar(title=Text("Main dashboard"), bgcolor="#9accdaff"),
+                        AppBar(title=Text("Main dashboard"), bgcolor="#f5c300"),
                         ElevatedButton("Do you like to bake cakes?"),
                     ],
                     vertical_alignment = "center",
@@ -151,6 +164,8 @@ def main(page: Page):
 
     page.on_route_change = handle_route
     page.on_view_pop = view_pop
+    page.on_disconnect = clear_cache
+    page.on_close = clear_cache
     page.go(page.route)
 
 def log_in(page):
@@ -173,5 +188,8 @@ def log_in(page):
 
 def sign_up_user(page):
     pass
+
+def clear_cache():
+    usr_cache.unlink()
 
 flet.app(target=main, assets_dir = "assets")
