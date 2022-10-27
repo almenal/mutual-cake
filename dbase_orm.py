@@ -22,6 +22,11 @@ class Employee(Base):
     id   = Column(Integer, primary_key = True)
     name = Column(String)
     allergies = relationship("Ingredient", secondary = employees_allergies_table)
+    
+    def __repr__(self):
+        return (f"Employee(id={self.id!r}, name={self.name!r}, " 
+                f"allergies={self.allergies!r})")
+
 
 class Cake(Base):
     __tablename__ = "cakes"
@@ -30,10 +35,17 @@ class Cake(Base):
     previewDescription = Column(String)
     ingredients = relationship("Ingredient", secondary = cake_ingredients_table)
 
+    def __repr__(self):
+        return (f"Cake(id={self.id!r}, name={self.name!r}, " 
+                f"ingredeints={self.ingredients!r})")
+
 class Ingredient(Base):
     __tablename__ = "ingredients"
     id   = Column(Integer, primary_key = True)
     name = Column(String)
+
+    def __repr__(self):
+        return f"Ingredient(id={self.id!r}, name={self.name!r})"
 
 class Assignment(Base):
     __tablename__ = "assignments"
@@ -41,3 +53,6 @@ class Assignment(Base):
     fromId = Column(ForeignKey("employees.id"))
     toId   = Column(ForeignKey("employees.id"))
     cakeId = Column(ForeignKey("cakes.id"))
+    def __repr__(self):
+        return (f"Assignment(Employee[{self.fromId!r}] bakes "
+                f"Cake[{self.cakeId}] for Employee[{self.toId!r}]")
