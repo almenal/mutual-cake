@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 root = Path(__file__).parent
 usr_cache = root / '.usr_cache'
+SERVER_URL = "http://127.0.0.1:8000"
 
 def main(page: Page):
     logger.info("Setting up page")
@@ -175,7 +176,7 @@ def log_in(page):
     user   = login_view.controls[1].content.value
     logger.info(f"User is '{user}'")
     user_data_respose = requests.get(
-        url = f"http://127.0.0.1:8000/employees/{user}"
+        url = f"{SERVER_URL}/employees/{user}"
     )
     user_data = user_data_respose.json() # TODO check status code, etc
     if user_data is None:
@@ -187,7 +188,26 @@ def log_in(page):
     page.go("/main")
 
 def sign_up_user(page):
-    pass
+    #Collect data
+    user_id = page.views[-1].controls[4].content.value
+    dmy_row = page.views[-1].controls[6]
+    dob_str = "-".join([f"{ctrl.content.value:d}" for ctrl in dmy_row.controls])
+    allergies_row = page.views[-1].controls[8].content
+    allergies = [checkbox.label for checkbox in allergies_row.controls if checkbox.value]
+    logger.info(f"Collected user data: Name='{user_id}'; DOB='{dob_str}'; "
+                f"Allergies='{allergies}'")
+    #Budle and do POST request
+    data = {
+        "name": user_id,
+        "birthday": dob_str,
+        "allergies": allergies
+    }
+    requests.post(
+        url = f"{SERVER_URL}/employees/",
+        data = data
+    )
+    #Switch to main cake dashboard
+    page.go("/main")
 
 def clear_cache():
     usr_cache.unlink()
