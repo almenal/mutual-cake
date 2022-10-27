@@ -1,8 +1,11 @@
+import datetime
+from typing import List
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, select
 from dbase_init import populate_dummy_data
 from dbase_orm import Employee, Cake, Ingredient, Assignment
+from pydantic import BaseModel
 
 # connect to database
 engine = create_engine('sqlite:///data/db.sqlite3', echo=True)
@@ -56,6 +59,22 @@ def fetch_assignment_data(assignment_id:int):
 
 # region Ingest data from POST ------------------
 
-#TODO
+class NewUser(BaseModel):
+    name: str
+    birthday: datetime.date
+    allergies: List[str]
+
+@app.post("/employees/")
+def sign_up_user(new_user: NewUser):
+    with Session(engine) as sess:
+        sess.add(
+            Employee(
+                name = new_user.name,
+                dob = new_user.dob,
+                allergies = [
+                    Ingredient(name = ingr) for ingr in new_user.allergies
+                ]
+            )
+        )
 
 # endregion -------------------------------------
