@@ -23,22 +23,25 @@ def main(page: Page):
     page.vertical_alignment = "center"
     page.horizontal_alignment = "center"
     page.route = "/login"
-    
-    def route_change(e):
+
+    def handle_route(e):
         logger.info(f"Route change: {e.route}")
         page.views.clear()
         page.views.append(
             View(
                 route = "/login",
                 controls = [
-                    Image(src = "logo.png", ),
-                    TextField(label = None, hint_text = "User ID"),
+                    Image(src = "logo.png", width = 150, height = 150),
+                    TextField(label = None, hint_text = "Enter your user ID"),
                     ElevatedButton("Log in", on_click = lambda _: log_in(page)),
                 ],
                 vertical_alignment = "center",
                 horizontal_alignment = "center"
             )
         )
+        if page.route == "/signup":
+            # TODO create sign-up form
+            pass
         if page.route == "/main":
             page.views.append(
                 View(
@@ -51,14 +54,14 @@ def main(page: Page):
                     horizontal_alignment = "center"
                 )
             )
-    
+
     def view_pop(e):
         logger.info(f"View pop: {e.view}")
         page.views.pop()
         top_view = page.views[-1]
         page.go(top_view.route)
-    
-    page.on_route_change = route_change
+
+    page.on_route_change = handle_route
     page.on_view_pop = view_pop
     page.go(page.route)
 
@@ -67,9 +70,14 @@ def log_in(page):
     user   = login_view.controls[1].value
     logger.info(f"User is '{user}'")
     user_data_respose = requests.get(
-        url = f"http://127.0.0.1:8000/employees/{user}",
+        url = f"http://127.0.0.1:8000/employees/{user}"
     )
-    user_data = user_data_respose.json()
+    user_data = user_data_respose.json() # TODO check status code, etc
+    if user_data is None:
+        logger.info(f"User {user} not registered, preparing sign-up sheet")
+        page.go("/signup")
+        return
+    logger.info(f"Successfully retrieved details for user {user}, heading to main")
     usr_cache.write_text(json.dumps(user_data))
     page.go("/main")
 
