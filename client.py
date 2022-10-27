@@ -9,7 +9,7 @@ from calendar import month_abbr
 from datetime import datetime
 import flet
 from flet import (
-    Page, View, Container, AppBar, Row, Column, GridView,
+    Page, View, Container, AppBar, Row, Column, GridView, Divider,
     Image, Text, Markdown,
     TextField,  ElevatedButton, Dropdown, Slider, Checkbox,
     margin, dropdown
@@ -65,13 +65,21 @@ def main(page: Page):
                     controls = [
                         Markdown("# Welcome to MutualCake ™️"),
                         Markdown("Please fill in your details to continue"),
-                        Container(Markdown("## 1. Choose a User ID"), margin = margin.only(top = 50)),
+                        
+                        Container(
+                            Markdown("## 1. Choose a User ID"),
+                            margin = margin.only(top = 50)
+                        ),
                         Container(
                             content = TextField(label = None,
                                                 hint_text = "Choose a user ID"),
                             width = 600,
                         ),
-                        Container(Markdown("## 2. Enter your date of birth"), margin = margin.only(top = 50)),
+                        
+                        Container(
+                            Markdown("## 2. Enter your date of birth"),
+                            margin = margin.only(top = 50)
+                        ),
                         Row(
                             controls = [
                                 Container(
@@ -98,17 +106,24 @@ def main(page: Page):
                             width = 600,
                             alignment="center"
                         ),
-                        Container(Markdown("## 3. Enter any allergies you may have"), margin = margin.only(top = 50)),
+                        
                         Container(
-                            content = GridView(controls = [
+                            Markdown("## 3. Enter any allergies you may have"),
+                            margin = margin.only(top = 50)
+                        ),
+                        Container(
+                            content = Row(controls = [
                                 Checkbox(label = "Eggs"),
                                 Checkbox(label = "Milk"),
                                 Checkbox(label = "Nuts"),
                                 Checkbox(label = "Chocolate"),
 
                             ],
-                            runs_count=2)
+                            alignment="center"
+                            # runs_count=2
+                            )
                         ),
+                        Divider(height = 30, thickness = 3),
                         ElevatedButton("Sign up", on_click= lambda _: sign_up_user(page)),
                     ],
                     vertical_alignment = "center",
