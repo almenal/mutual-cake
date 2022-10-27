@@ -9,14 +9,14 @@ from calendar import month_abbr
 from datetime import datetime
 import flet
 from flet import (
-    Page, View, Container, AppBar, Row, Column,
+    Page, View, Container, AppBar, Row, Column, GridView,
     Image, Text, Markdown,
     TextField,  ElevatedButton, Dropdown, Slider, Checkbox,
     margin, dropdown
 )
 
 logging.basicConfig(
-    format = "[{asctime}][{name:10}][{levelname:7}] {msg}",
+    format = "[{asctime}][{name:^10}][{levelname:^7}] {msg}",
     style = "{",
     force = True,
     level = logging.INFO
@@ -45,7 +45,8 @@ def main(page: Page):
                         margin = margin.only(top = 50, bottom = 50)
                     ),
                     Container(
-                        content = TextField(label = None, hint_text = "Enter your user ID"),
+                        content = TextField(label = None,
+                        hint_text = "Enter your user ID"),
                         width = 600,
                     ),
                     ElevatedButton("Log in", on_click = lambda _: log_in(page)),
@@ -62,32 +63,51 @@ def main(page: Page):
                 View(
                     route = "/signup",
                     controls = [
-                        Markdown("""# Welcome to MutualCake `TM`
-                        Pleae fill in your details to continue"""),
+                        Markdown("# Welcome to MutualCake ™️"),
+                        Markdown("Please fill in your details to continue"),
+                        Container(Markdown("## 1. Choose a User ID"), margin = margin.only(top = 50)),
                         Container(
-                            content = TextField(label = None, hint_text = "Choose a user ID"),
+                            content = TextField(label = None,
+                                                hint_text = "Choose a user ID"),
                             width = 600,
                         ),
+                        Container(Markdown("## 2. Enter your date of birth"), margin = margin.only(top = 50)),
                         Row(
                             controls = [
-                                Slider(value = 1, min = 1,max = 31,
-                                        divisions = 31, label = "{value}"),
-                                Dropdown(options=[
-                                    dropdown.Option(month) for month in
-                                    month_abbr if month
-                                ]),
-                                Slider(value = 1999, min = 1900, max = datetime.now().year,
-                                        divisions = 31, label = "{value}"),
-                            ]
+                                Container(
+                                    Dropdown(label = "Day", options = [
+                                        dropdown.Option(day) for day in range(1,32)
+                                    ]),
+                                    width = 180
+                                ),
+                                Container(
+                                    Dropdown(label = "Month", options=[
+                                        dropdown.Option(month) for month in
+                                        month_abbr if month
+                                    ]),
+                                    width = 180
+                                ),
+                                Container(
+                                    Dropdown(label = "Year", options=[
+                                        dropdown.Option(year) 
+                                        for year in range(datetime.now().year, 1900, -1)
+                                    ]),
+                                    width = 180
+                                )
+                            ],
+                            width = 600,
+                            alignment="center"
                         ),
+                        Container(Markdown("## 3. Enter any allergies you may have"), margin = margin.only(top = 50)),
                         Container(
-                            content = Column(controls = [
+                            content = GridView(controls = [
                                 Checkbox(label = "Eggs"),
                                 Checkbox(label = "Milk"),
                                 Checkbox(label = "Nuts"),
                                 Checkbox(label = "Chocolate"),
 
-                            ])
+                            ],
+                            runs_count=2)
                         ),
                         ElevatedButton("Sign up", on_click= lambda _: sign_up_user(page)),
                     ],
@@ -119,8 +139,10 @@ def main(page: Page):
     page.go(page.route)
 
 def log_in(page):
+    # NOTE: seems more robust but may not be necessary
+    # login_view = [view for view in page.views if view.route == '/login'][0]
     login_view = page.views[-1]
-    user   = login_view.controls[1].value
+    user   = login_view.controls[1].content.value
     logger.info(f"User is '{user}'")
     user_data_respose = requests.get(
         url = f"http://127.0.0.1:8000/employees/{user}"
