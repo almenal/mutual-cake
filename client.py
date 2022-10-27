@@ -144,13 +144,36 @@ def main(page: Page):
                 )
             )
         if page.route == "/main":
+            # TODO get this from REST API
+            birthday_person = "Jim Halpert"
+            cake_to_bake = "Straberry cheesecake"
             page.views.append(
                 View(
                     route = "/main",
                     controls = [
                         AppBar(title=Text("Main dashboard"), 
                                 color = "#000000", bgcolor="#f5c300"),
-                        ElevatedButton("Do you like to bake cakes?"),
+                        Row(
+                            controls = [
+                                Column(controls=[
+                                    Container(
+                                        Markdown("## Your cake will be for..."),
+                                        margin = margin.only(bottom = 100)
+                                    ),
+                                    Text(birthday_person)
+                                ], horizontal_alignment="center"),
+                                Column(controls=[
+                                    Container(
+                                        Markdown("## And the cake will be..."),
+                                        margin = margin.only(bottom = 100)
+                                    ),
+                                    Text(cake_to_bake)
+                                ], horizontal_alignment="center"),
+                            ],
+                            spacing = 150,
+                            alignment = "center",
+                            vertical_alignment = "center"
+                        )
                     ],
                     vertical_alignment = "center",
                     horizontal_alignment = "center"
