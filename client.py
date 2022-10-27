@@ -190,10 +190,14 @@ def log_in(page):
 def sign_up_user(page):
     #Collect data
     user_id = page.views[-1].controls[4].content.value
+    logger.debug(f"user_id = {user_id}")
     dmy_row = page.views[-1].controls[6]
-    dob_str = "-".join([f"{ctrl.content.value:d}" for ctrl in dmy_row.controls])
+    logger.debug(f"dmy_row = {dmy_row}")
+    dob_str = "-".join([f"{ctrl.content.value!s}" for ctrl in dmy_row.controls])
+    dob_str = datetime.strptime(dob_str, "%d-%b-%Y").strftime("%Y-%m-%d")
+    logger.debug(f"dob_str = {dob_str}")
     allergies_row = page.views[-1].controls[8].content
-    allergies = [checkbox.label for checkbox in allergies_row.controls if checkbox.value]
+    allergies = [box.label for box in allergies_row.controls if box.value]
     logger.info(f"Collected user data: Name='{user_id}'; DOB='{dob_str}'; "
                 f"Allergies='{allergies}'")
     #Budle and do POST request
@@ -204,8 +208,10 @@ def sign_up_user(page):
     }
     requests.post(
         url = f"{SERVER_URL}/employees/",
-        data = data
+        data = json.dumps(data),
+        headers = {'Content-type': 'application/json'}
     )
+
     #Switch to main cake dashboard
     page.go("/main")
 
