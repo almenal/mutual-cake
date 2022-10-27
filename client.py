@@ -4,7 +4,12 @@ import json
 import logging
 from pathlib import Path
 import flet
-from flet import Page, Image, TextField, View, ElevatedButton, AppBar, Text
+from flet import (
+    Page, View, Container, AppBar,
+    Image, Text,
+    TextField,  ElevatedButton,
+    margin
+)
 
 logging.basicConfig(
     format = "[{asctime}][{name:10}][{levelname:7}] {msg}",
@@ -31,8 +36,14 @@ def main(page: Page):
             View(
                 route = "/login",
                 controls = [
-                    Image(src = "logo.png", width = 150, height = 150),
-                    TextField(label = None, hint_text = "Enter your user ID"),
+                    Container(
+                        content = Image(src = "logo.png", width = 150, height = 150),
+                        margin = margin.only(top = 50, bottom = 50)
+                    ),
+                    Container(
+                        content = TextField(label = None, hint_text = "Enter your user ID"),
+                        width = 600,
+                    ),
                     ElevatedButton("Log in", on_click = lambda _: log_in(page)),
                 ],
                 vertical_alignment = "center",
