@@ -1,3 +1,4 @@
+from ast import Assign
 import datetime
 from typing import List
 from fastapi import FastAPI
@@ -57,6 +58,23 @@ def fetch_assignment_data(assignment_id:int):
 
 # endregion -------------------------------------
 
+# region Get joined info  ------------------
+
+@app.get("/employees/{employee_id}/assignments/")
+def fetch_assigned_employee(employee_id:int):
+    ""
+    with Session(engine) as sess:
+        return (
+            sess.scalars(
+                select(Employee.name)
+                .select_from(Assignment)
+                .join(Employee, Employee.id == Assignment.toId)
+                .where(Assignment.fromId == employee_id)
+            ).one()
+        )
+
+# endregion -------------------------------------
+
 # region Ingest data from POST ------------------
 
 class NewUser(BaseModel):
@@ -70,11 +88,13 @@ def sign_up_user(new_user: NewUser):
         sess.add(
             Employee(
                 name = new_user.name,
-                dob = new_user.dob,
+                # dob = datetime.datetime.strptime(new_user.dob, "%Y-%m-%d"),
                 allergies = [
                     Ingredient(name = ingr) for ingr in new_user.allergies
                 ]
             )
         )
+        sess.commit()
+    # TODO get users without assignment and assign missing ones
 
 # endregion -------------------------------------
