@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from turtle import bgcolor
 from xml.etree.ElementInclude import LimitedRecursiveIncludeError
 from click import option
 import requests
@@ -167,12 +168,51 @@ def main(page: Page):
                                         Markdown("## And the cake will be..."),
                                         margin = margin.only(bottom = 100)
                                     ),
-                                    Text(cake_to_bake)
+                                    Container(
+                                        Text(cake_to_bake),
+                                        margin = margin.only(bottom = 50)
+                                    ),
+                                    ElevatedButton(
+                                        "Show cake details",
+                                        on_click = lambda _: page.go("/cake")
+                                    )
                                 ], horizontal_alignment="center"),
                             ],
                             spacing = 150,
                             alignment = "center",
                             vertical_alignment = "center"
+                        )
+                    ],
+                    vertical_alignment = "center",
+                    horizontal_alignment = "center"
+                )
+            )
+        if page.route == "/cake":
+            cake_details = get_cake_details()
+            page.views.append(
+                View(
+                    route = "/cake",
+                    controls = [
+                        AppBar(
+                            title = Markdown(
+                                f"Details for: __{cake_details['name']}__",
+                            ),
+                            color = "#000000", bgcolor="#f5c300"
+                        ),
+                        Container(
+                            Markdown(f"__{cake_details['previewDescription']}__"),
+                            margin = margin.only(bottom = 50)
+                        ),
+                        Container(
+                            Image(src="logo.png", width=150, height=150),
+                            margin = margin.only(bottom = 50)
+                        ),
+                        Row(
+                            controls = [
+                                Container(Markdown("# Ingredients"), width = 250),
+                                Markdown("- One \n- Two \n- Three"),
+                            ],
+                            alignment = "center"
                         )
                     ],
                     vertical_alignment = "center",
@@ -274,15 +314,23 @@ def get_assigned_employee():
 
 def get_assigned_cake():
     cached_user = json.loads(usr_cache.read_text())
-    assigned_employee = requests.get(
+    assigned_cake = requests.get(
         f"{SERVER_URL}/employees/{cached_user['id']}/assignments/cake"
     ).json()
-    if assigned_employee is None:
+    if assigned_cake is None:
         logger.info(f"User: {cached_user!s} has nothing to bake!")
-        return
-    return assigned_employee
+    return assigned_cake
 
 def clear_cache():
     usr_cache.unlink()
+
+def get_cake_details():
+    cached_user = json.loads(usr_cache.read_text())
+    assigned_cake_details = requests.get(
+        f"{SERVER_URL}/employees/{cached_user['id']}/assignments/cake/details"
+    ).json()
+    if assigned_cake_details is None:
+        logger.info(f"User: {cached_user!s} has nothing to bake!")
+    return assigned_cake_details
 
 flet.app(target=main, assets_dir = "assets")
