@@ -200,7 +200,7 @@ def log_in(page):
     user_data_response = requests.get(
         url = f"{SERVER_URL}/employees/{user}"
     )
-    user_data = user_data_response.json() # TODO check status code, etc
+    user_data = user_data_response.json()
     if user_data is None:
         logger.info(f"User {user} not registered")
         page.snack_bar = SnackBar(Text("We cannot seem to find you..."), 
@@ -220,13 +220,33 @@ def sign_up_user(page):
     dmy_row = page.views[-1].controls[6]
     logger.debug(f"dmy_row = {dmy_row}")
     dob_str = "-".join([f"{ctrl.content.value!s}" for ctrl in dmy_row.controls])
-    dob_str = datetime.strptime(dob_str, "%d-%b-%Y").strftime("%Y-%m-%d")
+    try:
+        dob_str = datetime.strptime(dob_str, "%d-%b-%Y").strftime("%Y-%m-%d")
+    except:
+        page.snack_bar = SnackBar(
+            Text("Invalid date, please chose one option in each box."),
+            bgcolor = "#ff9955"
+        )
+        page.snack_bar.open = True
+        page.update()
+        return
     logger.debug(f"dob_str = {dob_str}")
     allergies_row = page.views[-1].controls[8].content
     allergies = [box.label for box in allergies_row.controls if box.value]
     logger.info(f"Collected user data: Name='{user_id}'; DOB='{dob_str}'; "
                 f"Allergies='{allergies}'")
-    #TODO Check user does not already exist!
+    # Check user does not already exist
+    potential_user = requests.get(f"{SERVER_URL}/employees/{user_id}").json() 
+    logger.info(f"Tried to fetch user {user_id}, found {potential_user}")
+    user_exists = potential_user is not None
+    if user_exists:
+        page.snack_bar = SnackBar(
+            Text("That username is already chosen"),
+            bgcolor = "#ff9955"
+        )
+        page.snack_bar.open = True
+        page.update()
+        return
     #Budle and do POST request
     data = {
         "name": user_id,
@@ -260,7 +280,6 @@ def get_assigned_cake():
         logger.info(f"User: {cached_user!s} has nothing to bake!")
         return
     return assigned_employee
-
 
 def clear_cache():
     usr_cache.unlink()
