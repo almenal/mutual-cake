@@ -70,7 +70,7 @@ def fetch_assigned_employee(employee_id:int):
                 .select_from(Assignment)
                 .join(Employee, Employee.id == Assignment.toId)
                 .where(Assignment.fromId == employee_id)
-            ).one()
+            ).one_or_none()
         )
 
 # endregion -------------------------------------
