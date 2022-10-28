@@ -79,7 +79,7 @@ def fetch_assigned_cake(employee_id:int):
     with Session(engine) as sess:
         return (
             sess.scalars(
-                select(Cake)
+                select(Cake.name)
                 .select_from(Assignment)
                 .join(Cake, Cake.id == Assignment.cakeId)
                 .where(Assignment.fromId == employee_id)
