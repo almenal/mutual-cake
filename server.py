@@ -1,9 +1,9 @@
-from ast import Assign
+#!/usr/bin/env python3
 import datetime
 from typing import List
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, update
 from dbase_init import populate_dummy_data
 from dbase_orm import Employee, Cake, Ingredient, Assignment
 from pydantic import BaseModel
@@ -104,13 +104,14 @@ def fetch_assigned_cake_details(employee_id:int):
 
 # region Ingest data from POST ------------------
 
-class NewUser(BaseModel):
+class UserInfo(BaseModel):
+    id: int = None
     name: str
     birthday: datetime.date
     allergies: List[str]
 
 @app.post("/employees/")
-def sign_up_user(new_user: NewUser):
+def sign_up_user(new_user: UserInfo):
     with Session(engine) as sess:
         sess.add(
             Employee(
@@ -123,5 +124,19 @@ def sign_up_user(new_user: NewUser):
         )
         sess.commit()
     # TODO get users without assignment and assign missing ones
+
+# endregion -------------------------------------
+
+# region Ammend data via PUT ------------------
+
+@app.put("employees/{employee_id}")
+def ammend_user_details(employee_id:int, new_details: UserInfo):
+    with Session(engine) as sess:
+        sess.execute(
+            update(Employee)
+            .where(Employee.id == employee_id)
+            .values(**new_details.dict())
+        )
+        sess.commit()
 
 # endregion -------------------------------------
