@@ -129,7 +129,7 @@ def sign_up_user(new_user: UserInfo):
         sess.add(
             Employee(
                 name = new_user.name,
-                # dob = datetime.datetime.strptime(new_user.dob, "%Y-%m-%d"),
+                # birthday = datetime.datetime.strptime(new_user.dob, "%Y-%m-%d"),
                 allergies = [
                     Ingredient(name = ingr) for ingr in new_user.allergies
                 ]
@@ -142,7 +142,7 @@ def sign_up_user(new_user: UserInfo):
 
 # region Ammend data via PUT ------------------
 
-@app.put("employees/{employee_id}")
+@app.put("/employees/{employee_id}")
 def ammend_user_details(employee_id:int, new_details: UserInfo):
     with Session(engine) as sess:
         sess.execute(
