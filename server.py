@@ -14,6 +14,19 @@ populate_dummy_data(engine)
 
 app = FastAPI()
 
+# region Get joined info  ------------------
+
+@app.get("/ingredients/all")
+def list_all_allergens():
+    with Session(engine) as sess:
+        res = list(set([
+            ingredient.capitalize() for ingredient in \
+            sess.scalars(select(Ingredient.name)).unique().all()
+        ]))
+        return res
+
+# endregion -------------------------------------
+
 # region Query items by item id -------------------------------------
 
 @app.get("/employees/{employee_id}")
