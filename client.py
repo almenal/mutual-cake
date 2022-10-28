@@ -47,7 +47,8 @@ def main(page: Page):
                     ),
                     Container(
                         content = TextField(label = None,
-                        hint_text = "Enter your user ID"),
+                                            hint_text = "Enter your user ID",
+                                            on_submit = lambda _: log_in(page)),
                         width = 400,
                     ),
                     ElevatedButton("Log in", on_click = lambda _: log_in(page)),
@@ -204,7 +205,7 @@ def log_in(page):
     if user_data is None:
         logger.info(f"User {user} not registered")
         page.snack_bar = SnackBar(Text("We cannot seem to find you..."), 
-                                    action="Sign up",
+                                    bgcolor = "#ff9955", action="Sign up",
                                     on_action = lambda _: page.go("/signup"))
         page.snack_bar.open = True
         page.update()
