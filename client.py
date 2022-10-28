@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-from turtle import bgcolor
-from xml.etree.ElementInclude import LimitedRecursiveIncludeError
-from click import option
 import requests
 import json
 import logging
@@ -11,8 +8,8 @@ from datetime import datetime
 import flet
 from flet import (
     Page, View, Container, AppBar, Row, Column, GridView, Divider,
-    Image, Text, Markdown, SnackBar,
-    TextField,  ElevatedButton, TextButton, Dropdown, Slider, Checkbox,
+    Image, Text, Markdown, SnackBar, icons,
+    TextField,  ElevatedButton, TextButton, Dropdown, IconButton, Checkbox,
     margin, dropdown, alignment
 )
 
@@ -145,7 +142,7 @@ def main(page: Page):
                     scroll='auto'
                 )
             )
-        if page.route == "/main" or page.route == "/main/cake":
+        if page.route.startswith("/main"):
             birthday_person = get_assigned_employee()
             cake_to_bake    = get_assigned_cake()
             page.views.append(
@@ -154,6 +151,19 @@ def main(page: Page):
                     controls = [
                         AppBar(title=Text("Main dashboard"), 
                                 color = "#000000", bgcolor="#f5c300"),
+                        Container(
+                            Row(
+                                controls = [
+                                    IconButton(
+                                        icon = icons.ACCOUNT_CIRCLE_ROUNDED,
+                                        icon_size = 50,
+                                        tooltip = "View/modify profile"
+                                        )
+                                ],
+                                alignment='end'    
+                            ),
+                            margin = margin.only(bottom = 100, top = 5)
+                        ),
                         Row(
                             controls = [
                                 Column(controls=[
@@ -180,7 +190,7 @@ def main(page: Page):
                             ],
                             spacing = 150,
                             alignment = "center",
-                            vertical_alignment = "center"
+                            vertical_alignment = "start"
                         )
                     ],
                     vertical_alignment = "center",
@@ -192,6 +202,37 @@ def main(page: Page):
             page.views.append(
                 View(
                     route = "/main/cake",
+                    controls = [
+                        AppBar(
+                            title = Markdown(
+                                f"Details for: __{cake_details['name']}__",
+                            ),
+                            color = "#000000", bgcolor="#f5c300"
+                        ),
+                        Container(
+                            Markdown(f"__{cake_details['previewDescription']}__"),
+                            margin = margin.only(bottom = 50)
+                        ),
+                        Container(
+                            Image(src="logo.png", width=150, height=150),
+                            margin = margin.only(bottom = 50)
+                        ),
+                        Row(
+                            controls = [
+                                Container(Markdown("# Ingredients"), width = 250),
+                                Markdown("- One \n- Two \n- Three"),
+                            ],
+                            alignment = "center"
+                        )
+                    ],
+                    vertical_alignment = "center",
+                    horizontal_alignment = "center"
+                )
+            )
+        if page.route == "/main/user":
+            page.views.append(
+                View(
+                    route = "/main/user",
                     controls = [
                         AppBar(
                             title = Markdown(
