@@ -238,7 +238,14 @@ def sign_up_user(page):
     page.go("/main")
 
 def get_assigned_employee():
-    pass
+    cached_user = json.loads(usr_cache.read_text())
+    assigned_employee = requests.get(
+        f"{SERVER_URL}/employees/{cached_user['id']}/assignments/"
+    ).json()
+    if assigned_employee is None:
+        logger.info(f"User: {cached_user!s} has nobody to bake to!")
+        return
+    return assigned_employee
 
 def get_assigned_cake():
     pass
