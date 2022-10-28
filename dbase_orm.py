@@ -55,4 +55,4 @@ class Assignment(Base):
     cakeId = Column(ForeignKey("cakes.id"))
     def __repr__(self):
         return (f"Assignment(Employee[{self.fromId!r}] bakes "
-                f"Cake[{self.cakeId}] for Employee[{self.toId!r}]")
+                f"Cake[{self.cakeId}] for Employee[{self.toId!r}])")
