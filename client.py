@@ -145,7 +145,7 @@ def main(page: Page):
                     scroll='auto'
                 )
             )
-        if page.route == "/main":
+        if page.route == "/main" or page.route == "/main/cake":
             birthday_person = get_assigned_employee()
             cake_to_bake    = get_assigned_cake()
             page.views.append(
@@ -174,7 +174,7 @@ def main(page: Page):
                                     ),
                                     ElevatedButton(
                                         "Show cake details",
-                                        on_click = lambda _: page.go("/cake")
+                                        on_click = lambda _: page.go("/main/cake")
                                     )
                                 ], horizontal_alignment="center"),
                             ],
@@ -187,11 +187,11 @@ def main(page: Page):
                     horizontal_alignment = "center"
                 )
             )
-        if page.route == "/cake":
+        if page.route == "/main/cake":
             cake_details = get_cake_details()
             page.views.append(
                 View(
-                    route = "/cake",
+                    route = "/main/cake",
                     controls = [
                         AppBar(
                             title = Markdown(
@@ -221,8 +221,12 @@ def main(page: Page):
             )
 
     def view_pop(e):
-        logger.info(f"View pop: {e.view}")
+        logger.info(f"View pop @ {e.view.route}: {e.view}")
+        logger.info("Current routes in page.views: "
+                    f"{[v.route for v in page.views]}")
         page.views.pop()
+        logger.info(f"Popped last view. Current routes in page.views: "
+                    f"{[v.route for v in page.views]}")
         top_view = page.views[-1]
         page.go(top_view.route)
 
