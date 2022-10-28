@@ -60,7 +60,7 @@ def fetch_assignment_data(assignment_id:int):
 
 # region Get joined info  ------------------
 
-@app.get("/employees/{employee_id}/assignments/")
+@app.get("/employees/{employee_id}/assignments/employee")
 def fetch_assigned_employee(employee_id:int):
     ""
     with Session(engine) as sess:
@@ -69,6 +69,19 @@ def fetch_assigned_employee(employee_id:int):
                 select(Employee.name)
                 .select_from(Assignment)
                 .join(Employee, Employee.id == Assignment.toId)
+                .where(Assignment.fromId == employee_id)
+            ).one_or_none()
+        )
+
+@app.get("/employees/{employee_id}/assignments/cake")
+def fetch_assigned_cake(employee_id:int):
+    ""
+    with Session(engine) as sess:
+        return (
+            sess.scalars(
+                select(Cake)
+                .select_from(Assignment)
+                .join(Cake, Cake.id == Assignment.cakeId)
                 .where(Assignment.fromId == employee_id)
             ).one_or_none()
         )
