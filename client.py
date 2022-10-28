@@ -10,7 +10,7 @@ from datetime import datetime
 import flet
 from flet import (
     Page, View, Container, AppBar, Row, Column, GridView, Divider,
-    Image, Text, Markdown,
+    Image, Text, Markdown, SnackBar,
     TextField,  ElevatedButton, TextButton, Dropdown, Slider, Checkbox,
     margin, dropdown, alignment
 )
@@ -202,8 +202,12 @@ def log_in(page):
     )
     user_data = user_data_response.json() # TODO check status code, etc
     if user_data is None:
-        logger.info(f"User {user} not registered, preparing sign-up sheet")
-        page.go("/signup") #TODO flag error instead of going straight to signup
+        logger.info(f"User {user} not registered")
+        page.snack_bar = SnackBar(Text("We cannot seem to find you..."), 
+                                    action="Sign up",
+                                    on_action = lambda _: page.go("/signup"))
+        page.snack_bar.open = True
+        page.update()
         return
     logger.info(f"Successfully retrieved details for user {user}, heading to main")
     usr_cache.write_text(json.dumps(user_data) + '\n')
