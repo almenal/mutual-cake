@@ -75,11 +75,25 @@ def fetch_assigned_employee(employee_id:int):
 
 @app.get("/employees/{employee_id}/assignments/cake")
 def fetch_assigned_cake(employee_id:int):
-    ""
+    "Return just cake name as opposed to full description"
     with Session(engine) as sess:
         return (
             sess.scalars(
                 select(Cake.name)
+                .select_from(Assignment)
+                .join(Cake, Cake.id == Assignment.cakeId)
+                .where(Assignment.fromId == employee_id)
+            ).one_or_none()
+        )
+
+@app.get("/employees/{employee_id}/assignments/cake/details")
+def fetch_assigned_cake_details(employee_id:int):
+    "Return full description as opposed to just cake name"
+    #TODO Include ingredients
+    with Session(engine) as sess:
+        return (
+            sess.scalars(
+                select(Cake)
                 .select_from(Assignment)
                 .join(Cake, Cake.id == Assignment.cakeId)
                 .where(Assignment.fromId == employee_id)
