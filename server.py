@@ -110,7 +110,7 @@ def fetch_assigned_cake_details(employee_id:int):
                 .select_from(Assignment)
                 .join(Cake, Cake.id == Assignment.cakeId)
                 .where(Assignment.fromId == employee_id)
-            ).one_or_none()
+            ).unique().one_or_none()
         )
 
 # endregion -------------------------------------

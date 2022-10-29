@@ -39,7 +39,8 @@ class Cake(Base):
     name = Column(String)
     previewDescription = Column(String)
     ingredients = relationship("Ingredient",
-                                secondary = cake_ingredients_table)
+                                secondary = cake_ingredients_table,
+                                lazy = 'joined')
 
     def __repr__(self):
         return (f"Cake(id={self.id!r}, name={self.name!r}, " 
