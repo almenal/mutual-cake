@@ -218,19 +218,23 @@ def main(page: Page):
                 )
             )
         if page.route == "/main/cake":
-            cake_details = get_cake_details()
+            cake_data = get_cake_details()
+            ingredients_md_list = "\n".join(sorted({
+                f"- {ingr['name'].capitalize()}" 
+                for ingr in cake_data['ingredients']
+            }))
             page.views.append(
                 View(
                     route = "/main/cake",
                     controls = [
                         AppBar(
                             title = Markdown(
-                                f"Details for: __{cake_details['name']}__",
+                                f"Details for: __{cake_data['name']}__",
                             ),
                             color = "#000000", bgcolor="#f5c300"
                         ),
                         Container(
-                            Markdown(f"__{cake_details['previewDescription']}__"),
+                            Markdown(f"__{cake_data['previewDescription']}__"),
                             margin = margin.only(bottom = 50)
                         ),
                         Container(
@@ -240,7 +244,7 @@ def main(page: Page):
                         Row(
                             controls = [
                                 Container(Markdown("# Ingredients"), width = 250),
-                                Markdown("- One \n- Two \n- Three"),
+                                Markdown(ingredients_md_list),
                             ],
                             alignment = "center"
                         )
