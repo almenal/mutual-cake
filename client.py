@@ -414,7 +414,45 @@ def sign_up_user(page):
     page.go("/main")
 
 def update_user_details(page):
-    pass #TODO
+    cached_data = json.loads(usr_cache.read_text())
+    cached_user = cached_data['id']
+    user_allergies = [x["name"].capitalize() for x in cached_data["allergies"]]
+    cached_data["allergies"] = user_allergies
+    logger.info(f"Sanitised cached data: {cached_data}")
+    # Retrieve data from UI Controls
+    updateable_user_data = page.views[-1].controls[1].controls[1].controls
+    user_name = updateable_user_data[0].content.value
+    user_dob  = updateable_user_data[1].content.value
+    user_allergies = [
+        ingredient.label for ingredient in updateable_user_data[3].controls
+        if ingredient.value # i.e. if checkbox checked
+    ]
+    logger.info(f"Updated details: Name={user_name}; DOB={user_dob}; "
+                f"Allergies={user_allergies}")
+    # Bundle and send PUT request
+    updated_user_data = {
+        "name": user_name,
+        "birthday": user_dob,
+        "allergies": user_allergies
+    }
+    user_data_to_put = {
+        k:v for k,v in updated_user_data.items()
+        # FIXME find a way to update allergies
+        if k not in ["id", "allergies"] and v != cached_data[k]
+    }
+    requests.put(
+        url = f"{SERVER_URL}/employees/{cached_user}/update",
+        data = json.dumps(user_data_to_put), #updated_user_data),
+        headers = {'Content-type': 'application/json'}
+    )
+
+    # Notify user
+    page.snack_bar = SnackBar(
+        Text("User details updated successfully"), 
+        bgcolor = "#92bce2ff",
+    )
+    page.snack_bar.open = True
+    page.update()
 
 def submit_cake(page):
     pass #TODO
