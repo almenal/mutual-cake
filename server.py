@@ -138,6 +138,24 @@ def sign_up_user(new_user: UserInfo):
         sess.commit()
     # TODO get users without assignment and assign missing ones
 
+class CakeInfo(BaseModel):
+    id: int = None
+    name: str = None
+    previewDescription: str = None
+    ingredients: List[str] = None
+
+@app.post("/cakes/")
+def submit_cake(new_cake: CakeInfo):
+    with Session(engine) as sess:
+        sess.add(
+            Cake(
+                name = new_cake.name,
+                previewDescription = new_cake.previewDescription,
+                allergies = new_cake.ingredients
+            )
+        )
+        sess.commit()
+
 # endregion -------------------------------------
 
 # region Ammend data via PUT ------------------
