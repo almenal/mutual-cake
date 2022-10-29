@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import logging
 from typing import List
 from fastapi import FastAPI
 from sqlalchemy.orm import Session, aliased
@@ -10,7 +11,13 @@ from pydantic import BaseModel
 
 # connect to database
 populate_dummy_data(engine)
-
+logging.basicConfig(
+    format = "[{asctime}][{name:^10}][{levelname:^7}] {msg}",
+    style = "{",
+    force = True,
+    level = logging.INFO
+)
+logger = logging.getLogger('my-server')
 app = FastAPI()
 
 # region pydantic models -------------------------------------
@@ -177,30 +184,32 @@ def submit_cake(new_cake: CakeInfo):
 def ammend_user_details(employee_id:int, new_details: UserInfo):
     """The assumption for the allergens is that the ingredients is a finite
     vocabulary with no option to add new items (for now)"""
+    logger.info(f"new_details.dict(): '{new_details.dict()}'")
     new_details_ = {
         k:v for k,v in new_details.dict().items() 
-        if v is not None and v != 'allergies'
+        if v is not None and k != 'allergies'
     }
-    if 'allergies' in new_details.keys():
-        new_details_['allergies'] = [x.lower() for x in new_details['allergies']]
+    logger.info(f"new_details_: '{new_details_}'")
     
     with Session(engine) as sess:
         # Update name, dob -----------
         sess.execute(
             update(Employee)
             .where(Employee.id == employee_id)
-            .values(**new_details)
+            .values(**new_details_)
         )
         sess.flush() 
         # Update allergies -----------
         user = sess.scalars(
             select(Employee).where(Employee.id == employee_id)
-        ).one()
-        new_allergies = sess.scalars(
-            select(Ingredient)
-            .where(Ingredient.name.in_(new_details_['allergies']))
-        ).unique().all()
-        user.allergies = new_allergies
+        ).unique().one()
+        if new_details.allergies is not None:
+            new_allergies = [x.lower() for x in new_details.allergies]
+            new_allergies_records = sess.scalars(
+                select(Ingredient)
+                .where(Ingredient.name.in_(new_allergies))
+            ).unique().all()
+            user.allergies = new_allergies_records
         
         sess.commit()
 

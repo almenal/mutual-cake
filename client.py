@@ -492,8 +492,7 @@ def update_user_details(page):
     }
     user_data_to_put = {
         k:v for k,v in updated_user_data.items()
-        # FIXME find a way to update allergies
-        if k not in ["id", "allergies"] and v != cached_data[k]
+        if k not in ["id"] and v != cached_data[k]
     }
     requests.put(
         url = f"{SERVER_URL}/employees/{cached_user}/update",
@@ -503,8 +502,8 @@ def update_user_details(page):
 
     # Notify user
     page.snack_bar = SnackBar(
-        Text("User details updated successfully"), 
-        color = "#000000", bgcolor = "#92bce2ff",
+        Text("User details updated successfully", color = "#000000"), 
+        bgcolor = "#92bce2ff",
     )
     page.snack_bar.open = True
     page.update()
