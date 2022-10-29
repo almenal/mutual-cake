@@ -1,24 +1,38 @@
-from dbase_orm import Employee, Ingredient, Cake, Assignment
+#!/usr/bin/env python3
+from datetime import datetime, date
+import dbase_orm
+from dbase_orm import (
+    Employee, Ingredient, Cake, Assignment,
+    employees_allergies_table, cake_ingredients_table
+    )
 from sqlalchemy.orm import Session
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.inspection import inspect
 
-Base = declarative_base()
+# Base = declarative_base()
+# Base.metadata.create_all(engine)
 
 def populate_dummy_data(engine):
-    dbase_has_tables = inspect(engine).get_table_names() != []
-    if dbase_has_tables:
-        return
-    Base.metadata.create_all(engine)
+    # dbase_has_tables = inspect(engine).get_table_names() != []
+    # if dbase_has_tables:
+    #     return
+    # Base.metadata.create_all(engine)
     with Session(engine) as session:
-
         # Add employees
-        michael = Employee(name = "Michael Scott", 
-                allergies = [Ingredient(name = "milk"), Ingredient(name = "nuts")])
-        dwight = Employee(name = "Dwight Schrutte", 
-                allergies = [Ingredient(name = "milk"), Ingredient(name = "eggs")])
-        jim = Employee(name = "Jim Halpert", 
-                allergies = [Ingredient(name = "chocolate")])
+        michael = Employee(
+            name = "Michael Scott",
+            birthday = date(2022, 10, 10),
+            allergies = [Ingredient(name = "milk"), Ingredient(name = "nuts")]
+        )
+        dwight = Employee(
+            name = "Dwight Schrutte",
+            birthday = date(2022, 10, 10),
+            allergies = [Ingredient(name = "milk"), Ingredient(name = "eggs")]
+        )
+        jim = Employee(
+            name = "Jim Halpert",
+            birthday = date(2022, 10, 10),
+            allergies = [Ingredient(name = "chocolate")]
+        )
         pam = Employee(name = "Pam Beesly")
         session.add_all([michael, dwight, jim, pam])
         session.flush() # ensure employees have id assigned

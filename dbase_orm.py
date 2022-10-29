@@ -1,6 +1,9 @@
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+#!/usr/bin/env python3
+from sqlalchemy import create_engine
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, Date
 from sqlalchemy.orm import declarative_base, relationship
 
+engine = create_engine('sqlite:///data/db.sqlite3', echo=True)
 Base = declarative_base()
 
 employees_allergies_table = Table(
@@ -21,19 +24,22 @@ class Employee(Base):
     __tablename__ = "employees"
     id   = Column(Integer, primary_key = True)
     name = Column(String)
-    allergies = relationship("Ingredient", secondary = employees_allergies_table)
+    birthday = Column(Date)
+    allergies = relationship("Ingredient",
+                             secondary=employees_allergies_table,
+                             lazy = 'joined')
     
     def __repr__(self):
-        return (f"Employee(id={self.id!r}, name={self.name!r}, " 
-                f"allergies={self.allergies!r})")
-
+        return (f"Employee(id={self.id!r}, dob={self.birthday!s}, "
+                f" name={self.name!r}, allergies={self.allergies!r})")
 
 class Cake(Base):
     __tablename__ = "cakes"
     id   = Column(Integer, primary_key = True)
     name = Column(String)
     previewDescription = Column(String)
-    ingredients = relationship("Ingredient", secondary = cake_ingredients_table)
+    ingredients = relationship("Ingredient",
+                                secondary = cake_ingredients_table)
 
     def __repr__(self):
         return (f"Cake(id={self.id!r}, name={self.name!r}, " 
@@ -56,3 +62,6 @@ class Assignment(Base):
     def __repr__(self):
         return (f"Assignment(Employee[{self.fromId!r}] bakes "
                 f"Cake[{self.cakeId}] for Employee[{self.toId!r}])")
+
+# NOTE: Make sure this does not delete dbase records
+Base.metadata.create_all(engine)
