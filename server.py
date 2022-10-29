@@ -151,7 +151,9 @@ def submit_cake(new_cake: CakeInfo):
             Cake(
                 name               = new_cake.name,
                 previewDescription = new_cake.previewDescription,
-                allergies          = new_cake.ingredients
+                ingredients        = [
+                    Ingredient(name = ingr) for ingr in new_cake.ingredients
+                ]
             )
         )
         sess.commit()
