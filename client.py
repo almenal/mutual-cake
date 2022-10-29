@@ -250,7 +250,77 @@ def main(page: Page):
                 )
             )
         if page.route == "/main/user":
-            pass #TODO
+            cached_user = json.loads(usr_cache.read_text())
+            all_ingredients = get_all_ingredients()
+            user_allergies = ["Nuts", "Milk"]
+            page.views.append(
+                View(
+                    route = "/main/user",
+                    controls = [
+                        AppBar(
+                            title = Text("Your Profile"),
+                            color = "#000000", bgcolor="#f5c300"
+                        ),
+                        Row(
+                            controls = [
+                                # Left side: User pic, user id, submit button
+                                Column(controls = [
+                                    Container(
+                                        Icon(name=icons.ACCOUNT_CIRCLE_ROUNDED,
+                                            size = 250),
+                                        margin = margin.only(bottom = 10)
+                                    ),
+                                    Container(
+                                        TextField(label = "User ID",
+                                                value = cached_user["id"],
+                                                disabled = True),
+                                        margin = margin.only(bottom = 10)
+                                    ),
+                                    ElevatedButton(
+                                        "Update details",
+                                        on_click=lambda _:
+                                            update_user_details(page))
+                                    ],
+                                    alignment = "start",
+                                    horizontal_alignment="center"
+                                ),
+                                # Right side: Pic, user name, dob, allergies
+                                Column(controls = [
+                                    Container(
+                                        TextField(label = "Full name",
+                                                value = cached_user["name"]),
+                                        margin = margin.only(bottom=10, top=25)
+                                    ),
+                                    Container(
+                                        TextField(label = "Date of birth",
+                                                value = cached_user["birthday"],
+                                                hint_text = "YYYY-MM-DD"),
+                                        margin = margin.only(bottom=10)
+                                    ),
+                                    Markdown("## Allergies"),
+                                    Row(
+                                        wrap = True,
+                                        width = page.width//4,
+                                        spacing=5,
+                                        run_spacing=5,
+                                        controls = [
+                                            Checkbox(label = x,
+                                                    value = x in user_allergies)
+                                            for x in all_ingredients
+                                        ],
+                                    )
+                                ]),
+                            ],
+                            # spacing = 50,
+                            alignment = "center",
+                            vertical_alignment = "start"
+                        )
+                    ],
+                    vertical_alignment = "center",
+                    horizontal_alignment = "center",
+                    scroll='auto'
+                )
+            )
         if page.route == "/main/newcake":
             pass #TODO
 
