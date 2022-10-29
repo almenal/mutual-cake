@@ -504,7 +504,13 @@ def update_user_details(page):
     page.update()
 
 def submit_cake(page):
-    pass #TODO
+    # Read from GUI
+    gui_cake_data = page.views[-1].controls
+    cake_name   = gui_cake_data[3].content.value
+    cake_descr  = gui_cake_data[5].content.value
+    # Bundle
+    # POST
+    
 
 # endregion -------------------------------------
 
