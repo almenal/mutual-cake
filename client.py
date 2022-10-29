@@ -322,7 +322,61 @@ def main(page: Page):
                 )
             )
         if page.route == "/main/newcake":
-            pass #TODO
+            all_ingredients = get_all_ingredients()
+            page.views.append(
+                View(
+                    route = "/main/newcake",
+                    controls = [
+                        AppBar(title=Text("Submit new cake"), 
+                                color = "#000000", bgcolor="#f5c300"),
+                        Markdown("# Submit your own cake"),
+                        
+                        Container(
+                            Markdown("## 1. Name of your cake"),
+                            margin = margin.only(top = 50)
+                        ),
+                        Container(content = TextField(label = None,
+                                                    hint_text = "Cake name"),
+                                    width = 600
+                        ),
+                        
+                        Container(
+                            Markdown("## 2. Brief description"),
+                            margin = margin.only(top = 50)
+                        ),
+                        Container(content = TextField(label = None,
+                                                    hint_text = "Description"),
+                                    width = 600
+                        ),
+                        
+                        Container(
+                            Markdown("## 3. Which ingredients does it have?"),
+                            margin = margin.only(top = 50)
+                        ),
+                        Container(
+                            content = Column(
+                                wrap = True,
+                                height = page.height//4,
+                                spacing=5,
+                                run_spacing=5,
+                                controls = [
+                                    Checkbox(label = x) for x in all_ingredients
+                                ],
+                            ),
+                            # alignment="center"
+                            # runs_count=2
+                        ),
+                        # ),
+                        Divider(height = 30, thickness = 3),
+                        ElevatedButton("Submit",
+                                        on_click= lambda _: submit_cake(page)),
+                    ],
+                    vertical_alignment = "start",
+                    horizontal_alignment = "start",
+                    scroll='auto'
+                )
+            
+            )
 
     def view_pop(e):
         logger.info(f"View pop @ {e.view.route}: {e.view}")
