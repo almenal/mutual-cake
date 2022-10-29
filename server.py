@@ -2,14 +2,13 @@
 import datetime
 from typing import List
 from fastapi import FastAPI
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy import create_engine, select, update
 from dbase_init import populate_dummy_data
-from dbase_orm import Employee, Cake, Ingredient, Assignment
+from dbase_orm import Employee, Cake, Ingredient, Assignment, engine
 from pydantic import BaseModel
 
 # connect to database
-engine = create_engine('sqlite:///data/db.sqlite3', echo=True)
 populate_dummy_data(engine)
 
 app = FastAPI()
@@ -19,7 +18,7 @@ app = FastAPI()
 @app.get("/ingredients/all")
 def list_all_allergens():
     with Session(engine) as sess:
-        res = list(set([
+        res = sorted(set([
             ingredient.capitalize() for ingredient in \
             sess.scalars(select(Ingredient.name)).unique().all()
         ]))
@@ -33,10 +32,11 @@ def list_all_allergens():
 def fetch_employee_data(employee_id:int):
     ""
     with Session(engine) as sess:
-        return  (
-            sess.query(Employee)
-            .filter(Employee.id == employee_id)
-            .one_or_none()
+        return (
+            sess.scalars(
+                select(Employee)
+                .where(Employee.id == employee_id)
+            ).unique().one()
         )
 
 @app.get("/cakes/{cake_id}")
@@ -119,9 +119,9 @@ def fetch_assigned_cake_details(employee_id:int):
 
 class UserInfo(BaseModel):
     id: int = None
-    name: str
-    birthday: datetime.date
-    allergies: List[str]
+    name: str = None
+    birthday: datetime.date = None
+    allergies: List[str] = None
 
 @app.post("/employees/")
 def sign_up_user(new_user: UserInfo):
@@ -142,13 +142,16 @@ def sign_up_user(new_user: UserInfo):
 
 # region Ammend data via PUT ------------------
 
-@app.put("/employees/{employee_id}")
+@app.put("/employees/{employee_id}/update")
 def ammend_user_details(employee_id:int, new_details: UserInfo):
     with Session(engine) as sess:
+        new_details = {
+            k:v for k,v in new_details.dict().items() if v is not None
+        }
         sess.execute(
             update(Employee)
             .where(Employee.id == employee_id)
-            .values(**new_details.dict())
+            .values(**new_details)
         )
         sess.commit()
 
