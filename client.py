@@ -7,8 +7,8 @@ from calendar import month_abbr
 from datetime import datetime
 import flet
 from flet import (
-    Page, View, Container, AppBar, Row, Column, GridView, Divider,
-    Image, Text, Markdown, SnackBar, icons,
+    Page, View, Container, AppBar, Row, Column, ListView, Divider,
+    Image, Text, Markdown, SnackBar, Icon, icons,
     TextField,  ElevatedButton, TextButton, Dropdown, IconButton, Checkbox,
     margin, dropdown, alignment
 )
@@ -157,30 +157,32 @@ def main(page: Page):
                                     IconButton(
                                         icon = icons.ACCOUNT_CIRCLE_ROUNDED,
                                         icon_size = 50,
-                                        tooltip = "View/modify profile"
-                                        )
+                                        tooltip = "View/modify profile",
+                                        on_click=lambda _: page.go("/main/user")
+                                    )
                                 ],
                                 alignment='end'    
                             ),
-                            margin = margin.only(bottom = 100, top = 5)
+                            # margin = margin.only(bottom = 50, top = 5)
                         ),
+                        Divider(height = 50, thickness = 1, opacity=0),
                         Row(
                             controls = [
                                 Column(controls=[
                                     Container(
                                         Markdown("## Your cake will be for..."),
-                                        margin = margin.only(bottom = 100)
+                                        margin = margin.only(bottom = 50)
                                     ),
                                     Text(birthday_person)
                                 ], horizontal_alignment="center"),
                                 Column(controls=[
                                     Container(
                                         Markdown("## And the cake will be..."),
-                                        margin = margin.only(bottom = 100)
+                                        margin = margin.only(bottom = 50)
                                     ),
                                     Container(
                                         Text(cake_to_bake),
-                                        margin = margin.only(bottom = 50)
+                                        margin = margin.only(bottom = 10)
                                     ),
                                     ElevatedButton(
                                         "Show cake details",
@@ -191,9 +193,27 @@ def main(page: Page):
                             spacing = 150,
                             alignment = "center",
                             vertical_alignment = "start"
+                        ),
+                        Divider(height=50, thickness=1, opacity=0),
+                        Row(
+                            controls = [
+                                ElevatedButton(
+                                    "Change partner",
+                                    on_click = lambda _: page.go("/main/change-partner")
+                                ),
+                                ElevatedButton(
+                                    "Change cake",
+                                    on_click = lambda _: page.go("/main/change-cake")
+                                ),
+                                ElevatedButton(
+                                    "Add your own cake recipe!",
+                                    on_click = lambda _: page.go("/main/newcake")
+                                ),
+                            ],
+                            alignment="spaceEvenly"
                         )
                     ],
-                    vertical_alignment = "center",
+                    vertical_alignment = "start",
                     horizontal_alignment = "center"
                 )
             )
@@ -230,36 +250,9 @@ def main(page: Page):
                 )
             )
         if page.route == "/main/user":
-            page.views.append(
-                View(
-                    route = "/main/user",
-                    controls = [
-                        AppBar(
-                            title = Markdown(
-                                f"Details for: __{cake_details['name']}__",
-                            ),
-                            color = "#000000", bgcolor="#f5c300"
-                        ),
-                        Container(
-                            Markdown(f"__{cake_details['previewDescription']}__"),
-                            margin = margin.only(bottom = 50)
-                        ),
-                        Container(
-                            Image(src="logo.png", width=150, height=150),
-                            margin = margin.only(bottom = 50)
-                        ),
-                        Row(
-                            controls = [
-                                Container(Markdown("# Ingredients"), width = 250),
-                                Markdown("- One \n- Two \n- Three"),
-                            ],
-                            alignment = "center"
-                        )
-                    ],
-                    vertical_alignment = "center",
-                    horizontal_alignment = "center"
-                )
-            )
+            pass #TODO
+        if page.route == "/main/newcake":
+            pass #TODO
 
     def view_pop(e):
         logger.info(f"View pop @ {e.view.route}: {e.view}")
@@ -273,9 +266,12 @@ def main(page: Page):
 
     page.on_route_change = handle_route
     page.on_view_pop = view_pop
-    page.on_disconnect = clear_cache
-    page.on_close = clear_cache
+    # page.on_disconnect = clear_cache
+    # page.on_close = clear_cache
     page.go(page.route)
+
+
+# region Send data to server ------------------
 
 def log_in(page):
     # NOTE: seems more robust but may not be necessary
@@ -347,6 +343,16 @@ def sign_up_user(page):
     #Switch to main cake dashboard
     page.go("/main")
 
+def update_user_details(page):
+    pass #TODO
+
+def submit_cake(page):
+    pass #TODO
+
+# endregion -------------------------------------
+
+# region Request data from server ------------------
+
 def get_assigned_employee():
     cached_user = json.loads(usr_cache.read_text())
     assigned_employee = requests.get(
@@ -366,9 +372,6 @@ def get_assigned_cake():
         logger.info(f"User: {cached_user!s} has nothing to bake!")
     return assigned_cake
 
-def clear_cache():
-    usr_cache.unlink()
-
 def get_cake_details():
     cached_user = json.loads(usr_cache.read_text())
     assigned_cake_details = requests.get(
@@ -377,5 +380,14 @@ def get_cake_details():
     if assigned_cake_details is None:
         logger.info(f"User: {cached_user!s} has nothing to bake!")
     return assigned_cake_details
+
+def get_all_ingredients():
+    return requests.get(url = f"{SERVER_URL}/ingredients/all").json()
+
+# endregion -------------------------------------
+
+def clear_cache(e):
+    usr_cache.unlink()
+
 
 flet.app(target=main, assets_dir = "assets")
