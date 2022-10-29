@@ -21,21 +21,39 @@ def populate_dummy_data(engine):
             return
     # Base.metadata.create_all(engine)
     with Session(engine) as session:
+        # Create all ingredients (fixed vocabulary)
+        milk        = Ingredient(name = "milk")
+        nuts        = Ingredient(name = "nuts")
+        eggs        = Ingredient(name = "eggs")
+        chocolate   = Ingredient(name = "chocolate")
+        cheese      = Ingredient(name = "cheese")
+        cookies     = Ingredient(name = "cookies")
+        wheat       = Ingredient(name = "wheat")
+        strawberry  = Ingredient(name = "strawberry")
+        raspberry   = Ingredient(name = "raspberry")
+        cream       = Ingredient(name = "cream")
+        margarine   = Ingredient(name = "margarine")
+        carrot      = Ingredient(name = "carrot")
+        cinammon    = Ingredient(name = "cinammon")
+        oat         = Ingredient(name = "oat")
+        flour       = Ingredient(name = "flour")
+        bicarbonate = Ingredient(name = "bicarbonate")
+
         # Add employees
         michael = Employee(
             name = "Michael Scott",
             birthday = date(2022, 10, 10),
-            allergies = [Ingredient(name = "milk"), Ingredient(name = "nuts")]
+            allergies = [milk, nuts]
         )
         dwight = Employee(
             name = "Dwight Schrutte",
             birthday = date(2022, 10, 10),
-            allergies = [Ingredient(name = "milk"), Ingredient(name = "eggs")]
+            allergies = [milk, eggs]
         )
         jim = Employee(
             name = "Jim Halpert",
             birthday = date(2022, 10, 10),
-            allergies = [Ingredient(name = "chocolate")]
+            allergies = [chocolate]
         )
         pam = Employee(name = "Pam Beesly")
         session.add_all([michael, dwight, jim, pam])
@@ -46,35 +64,35 @@ def populate_dummy_data(engine):
             name =  "Lemon cheesecake - strawberry",
             previewDescription = "A cheesecake made of lemon",
             ingredients = [
-                Ingredient(name = "cheese"), Ingredient(name = "eggs"), 
-                Ingredient(name = "flour"), Ingredient(name = "cookies"), 
-                Ingredient(name = "wheat"), Ingredient(name = "strawberry")
+                cheese, eggs, 
+                flour, cookies, 
+                wheat, strawberry
                 ]
             )
         victoria = Cake(
             name =  "Victoria sponge",
             previewDescription = "Sponge with jam",
             ingredients = [
-                Ingredient(name = "raspberry"), Ingredient(name = "cream"), 
-                Ingredient(name = "eggs"), Ingredient(name = "flour"), 
-                Ingredient(name = "margarine")
+                raspberry, cream, 
+                eggs, flour, 
+                margarine
                 ]
             )
         carrot = Cake(
             name =  "Carrot cake",
             previewDescription = "Bugs bunnys favourite",
             ingredients = [
-                Ingredient(name = "carrot"), Ingredient(name = "eggs"), 
-                Ingredient(name = "flour"), Ingredient(name = "cinammon"), 
-                Ingredient(name = "nuts")
+                carrot, eggs, 
+                flour, cinammon, 
+                nuts
                 ]
             )
         vegan = Cake(
             name =  "Vegan sponge cake",
             previewDescription = "For that one friend",
             ingredients = [
-                Ingredient(name = "oat"), Ingredient(name = "flour"), 
-                Ingredient(name = "bicarbonate"), Ingredient(name = "strawberry"),
+                oat, flour, 
+                bicarbonate, strawberry,
                 ]
             )
         cakes = [lemon, victoria, carrot, vegan]
