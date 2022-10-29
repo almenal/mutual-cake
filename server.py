@@ -155,15 +155,17 @@ def sign_up_user(new_user: UserInfo):
 @app.post("/cakes/")
 def submit_cake(new_cake: CakeInfo):
     with Session(engine) as sess:
-        sess.add(
-            Cake(
-                name               = new_cake.name,
-                previewDescription = new_cake.previewDescription,
-                ingredients        = [
-                    Ingredient(name = ingr) for ingr in new_cake.ingredients
-                ]
+        ingredients_lower = [ingr.lower() for ingr in new_cake.ingredients]
+        ingredients = sess.scalars(
+            select(Ingredient)
+            .where(Ingredient.name.in_(ingredients_lower))
+        ).unique().all()
+        new_cake = Cake(
+            name               = new_cake.name,
+            previewDescription = new_cake.previewDescription,
+            ingredients        = ingredients
             )
-        )
+        sess.add(new_cake)
         sess.commit()
 
 # endregion -------------------------------------
