@@ -194,16 +194,16 @@ def main(page: Page):
                             alignment = "center",
                             vertical_alignment = "start"
                         ),
-                        Divider(height=50, thickness=1, opacity=0),
+                        Divider(height=75, thickness=1, opacity=0),
                         Row(
                             controls = [
                                 ElevatedButton(
                                     "Change partner",
-                                    on_click = lambda _: page.go("/main/change-partner")
+                                    on_click = lambda _: None#page.go("/main/change-partner")
                                 ),
                                 ElevatedButton(
                                     "Change cake",
-                                    on_click = lambda _: page.go("/main/change-cake")
+                                    on_click = lambda _: None#page.go("/main/change-cake")
                                 ),
                                 ElevatedButton(
                                     "Add your own cake recipe!",
@@ -508,9 +508,32 @@ def submit_cake(page):
     gui_cake_data = page.views[-1].controls
     cake_name   = gui_cake_data[3].content.value
     cake_descr  = gui_cake_data[5].content.value
+    cake_ingredients = [
+        ingredient.label for ingredient in gui_cake_data[7].content.controls
+        if ingredient.value # i.e. if checkbox checked
+    ]
     # Bundle
+    new_cake_data = {
+        "name"               : cake_name,
+        "previewDescription" : cake_descr,
+        "ingredients"        : cake_ingredients,
+    }
+    logger.info(f"Collected cake data: Name='{cake_name}'; Descr='{cake_descr}'; "
+                f"Ingredients='{cake_ingredients}'")
     # POST
-    
+    requests.post(
+        url = f"{SERVER_URL}/cakes/",
+        data = json.dumps(new_cake_data),
+        headers = {'Content-type': 'application/json'}
+    )
+    # Notify
+    page.snack_bar = SnackBar(
+        Text("New cake recipe has been submitted!"), 
+        bgcolor = "#92bce2ff",
+    )
+    page.snack_bar.open = True
+    page.update()
+
 
 # endregion -------------------------------------
 
