@@ -404,9 +404,11 @@ def log_in(page):
     user_data = user_data_response.json()
     if user_data is None:
         logger.info(f"User {user} not registered")
-        page.snack_bar = SnackBar(Text("We cannot seem to find you..."), 
-                                    bgcolor = "#ff9955", action="Sign up",
-                                    on_action = lambda _: page.go("/signup"))
+        page.snack_bar = SnackBar(
+            Text("We cannot seem to find you..."), 
+            color = "#000000", bgcolor = "#ff9955", action="Sign up",
+            on_action = lambda _: page.go("/signup")
+        )
         page.snack_bar.open = True
         page.update()
         return
@@ -426,7 +428,7 @@ def sign_up_user(page):
     except:
         page.snack_bar = SnackBar(
             Text("Invalid date, please chose one option in each box."),
-            bgcolor = "#ff9955"
+            color = "#000000", bgcolor = "#ff9955"
         )
         page.snack_bar.open = True
         page.update()
@@ -443,7 +445,7 @@ def sign_up_user(page):
     if user_exists:
         page.snack_bar = SnackBar(
             Text("That username is already chosen"),
-            bgcolor = "#ff9955"
+            color = "#000000", bgcolor = "#ff9955"
         )
         page.snack_bar.open = True
         page.update()
@@ -498,7 +500,7 @@ def update_user_details(page):
     # Notify user
     page.snack_bar = SnackBar(
         Text("User details updated successfully"), 
-        bgcolor = "#92bce2ff",
+        color = "#000000", bgcolor = "#92bce2ff",
     )
     page.snack_bar.open = True
     page.update()
@@ -529,7 +531,7 @@ def submit_cake(page):
     # Notify
     page.snack_bar = SnackBar(
         Text("New cake recipe has been submitted!"), 
-        bgcolor = "#92bce2ff",
+        color = "#000000", bgcolor = "#92bce2ff",
     )
     page.snack_bar.open = True
     page.update()
