@@ -13,6 +13,23 @@ populate_dummy_data(engine)
 
 app = FastAPI()
 
+# region pydantic models -------------------------------------
+
+class UserInfo(BaseModel):
+    id: int = None
+    name: str = None
+    birthday: datetime.date = None
+    allergies: List[str] = None
+
+class CakeInfo(BaseModel):
+    id: int = None
+    name: str = None
+    previewDescription: str = None
+    ingredients: List[str] = None
+
+# endregion -------------------------------------
+
+
 # region Get joined info  ------------------
 
 @app.get("/ingredients/all")
@@ -25,6 +42,7 @@ def list_all_allergens():
         return res
 
 # endregion -------------------------------------
+
 
 # region Query items by item id -------------------------------------
 
@@ -71,6 +89,7 @@ def fetch_assignment_data(assignment_id:int):
 
 # endregion -------------------------------------
 
+
 # region Get joined info  ------------------
 
 @app.get("/employees/{employee_id}/assignments/employee")
@@ -115,13 +134,8 @@ def fetch_assigned_cake_details(employee_id:int):
 
 # endregion -------------------------------------
 
-# region Ingest data from POST ------------------
 
-class UserInfo(BaseModel):
-    id: int = None
-    name: str = None
-    birthday: datetime.date = None
-    allergies: List[str] = None
+# region Ingest data from POST ------------------
 
 @app.post("/employees/")
 def sign_up_user(new_user: UserInfo):
@@ -138,12 +152,6 @@ def sign_up_user(new_user: UserInfo):
         sess.commit()
     # TODO get users without assignment and assign missing ones
 
-class CakeInfo(BaseModel):
-    id: int = None
-    name: str = None
-    previewDescription: str = None
-    ingredients: List[str] = None
-
 @app.post("/cakes/")
 def submit_cake(new_cake: CakeInfo):
     with Session(engine) as sess:
@@ -159,6 +167,7 @@ def submit_cake(new_cake: CakeInfo):
         sess.commit()
 
 # endregion -------------------------------------
+
 
 # region Ammend data via PUT ------------------
 
