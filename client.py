@@ -33,6 +33,7 @@ def main(page: Page):
     page.route = "/login"
 
     def handle_route(e):
+        all_ingredients = get_all_ingredients()
         logger.info(f"Route change: {e.route}")
         page.views.clear()
         page.views.append(
@@ -122,16 +123,15 @@ def main(page: Page):
                             margin = margin.only(top = 50)
                         ),
                         Container(
-                            content = Row(controls = [
-                                Checkbox(label = "Eggs"),
-                                Checkbox(label = "Milk"),
-                                Checkbox(label = "Nuts"),
-                                Checkbox(label = "Chocolate"),
-
-                            ],
-                            alignment="center"
-                            # runs_count=2
-                            )
+                            content = Column(
+                                wrap = True,
+                                height = page.height//4,
+                                spacing=5,
+                                run_spacing=5,
+                                controls = [
+                                    Checkbox(label = x) for x in all_ingredients
+                                ],
+                            ),
                         ),
                         Divider(height = 30, thickness = 3),
                         ElevatedButton("Sign up",
@@ -251,7 +251,6 @@ def main(page: Page):
             )
         if page.route == "/main/user":
             cached_user = json.loads(usr_cache.read_text())
-            all_ingredients = get_all_ingredients()
             user_allergies = ["Nuts", "Milk"]
             page.views.append(
                 View(
@@ -322,7 +321,6 @@ def main(page: Page):
                 )
             )
         if page.route == "/main/newcake":
-            all_ingredients = get_all_ingredients()
             page.views.append(
                 View(
                     route = "/main/newcake",
@@ -363,10 +361,7 @@ def main(page: Page):
                                     Checkbox(label = x) for x in all_ingredients
                                 ],
                             ),
-                            # alignment="center"
-                            # runs_count=2
                         ),
-                        # ),
                         Divider(height = 30, thickness = 3),
                         ElevatedButton("Submit",
                                         on_click= lambda _: submit_cake(page)),
