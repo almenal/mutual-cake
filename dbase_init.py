@@ -5,6 +5,7 @@ from dbase_orm import (
     Employee, Ingredient, Cake, Assignment,
     employees_allergies_table, cake_ingredients_table
     )
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.inspection import inspect
 
@@ -12,9 +13,12 @@ from sqlalchemy.inspection import inspect
 # Base.metadata.create_all(engine)
 
 def populate_dummy_data(engine):
-    # dbase_has_tables = inspect(engine).get_table_names() != []
-    # if dbase_has_tables:
-    #     return
+    dbase_has_tables = inspect(engine).get_table_names() != []
+    if dbase_has_tables:
+        with Session(engine) as session:
+            first_row = session.execute(select(Employee)).unique().first()
+        if first_row is not None:
+            return
     # Base.metadata.create_all(engine)
     with Session(engine) as session:
         # Add employees
