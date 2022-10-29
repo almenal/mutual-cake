@@ -36,7 +36,7 @@ def fetch_employee_data(employee_id:int):
             sess.scalars(
                 select(Employee)
                 .where(Employee.id == employee_id)
-            ).unique().one()
+            ).unique().one_or_none()
         )
 
 @app.get("/cakes/{cake_id}")
@@ -149,9 +149,9 @@ def submit_cake(new_cake: CakeInfo):
     with Session(engine) as sess:
         sess.add(
             Cake(
-                name = new_cake.name,
+                name               = new_cake.name,
                 previewDescription = new_cake.previewDescription,
-                allergies = new_cake.ingredients
+                allergies          = new_cake.ingredients
             )
         )
         sess.commit()
