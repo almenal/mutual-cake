@@ -400,7 +400,37 @@ def main(page: Page):
             
             )
         if page.route == "/main/change-partner":
-            pass
+            all_employees = get_all_employees()
+            page.views.append(
+                View(
+                    route = "/main/newcake",
+                    vertical_alignment = "start",
+                    horizontal_alignment = "start",
+                    scroll='auto',
+                    controls = [
+                        Container(
+                            Markdown("## Your colleagues:"),
+                            margin = margin.only(top = 50, left = 50)
+                        ),
+                        Container(
+                            RadioGroup(
+                                content = Column(controls = [
+                                    Radio(value=emp['id'],
+                                            label=emp['name'])
+                                    for emp in all_employees
+                                ])
+                            ),
+                            margin = margin.only(top = 20, left = 75)
+                        ),
+                        Container(
+                            ElevatedButton("Choose new partner", 
+                                on_click=lambda _: choose_new_partner),
+                            margin = margin.only(top = 50),
+                            alignment=alignment.center
+                        ),
+                    ]
+                )
+            )
         if page.route == "/main/change-cake":
             pass
 
