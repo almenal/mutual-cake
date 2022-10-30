@@ -64,6 +64,17 @@ def fetch_employee_data(employee_id:int):
             ).unique().one_or_none()
         )
 
+@app.get("/employees/name/{employee_name}")
+def fetch_employee_data(employee_name: str):
+    ""
+    with Session(engine) as sess:
+        return (
+            sess.scalars(
+                select(Employee)
+                .where(Employee.name == employee_name)
+            ).unique().one_or_none()
+        )
+
 @app.get("/cakes/{cake_id}")
 def fetch_cake_data(cake_id:int):
     ""
@@ -128,7 +139,6 @@ def fetch_assigned_cake(employee_id:int):
 @app.get("/employees/{employee_id}/assignments/cake/details")
 def fetch_assigned_cake_details(employee_id:int):
     "Return full description as opposed to just cake name"
-    #TODO Include ingredients
     with Session(engine) as sess:
         return (
             sess.scalars(
