@@ -238,6 +238,26 @@ def ammend_user_details(employee_id:int, new_details: UserInfo):
         
         sess.commit()
 
+@app.put("/employees/{employee_id}/new_patner/{partner_id}")
+def choose_new_partner(employee_id:int, partner_id:int):
+    with Session(engine) as sess:
+        existing_assignment = sess.scalars(
+            select(Assignment)
+            .where(Assignment.fromId == employee_id)
+        ).one_or_none
+        
+        if existing_assignment is not None:
+            existing_assignment.toId = partner_id
+        else:
+            sess.add(
+                Assignment(
+                    fromId = employee_id,
+                    toId = partner_id,
+                    cakeId = None #FIXME
+                )
+            )
+        sess.commit()
+
 # endregion -------------------------------------
 
 
