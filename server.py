@@ -219,12 +219,13 @@ def ammend_user_details(employee_id:int, new_details: UserInfo):
 
 # region DELETE data ------------------
 
-@app.delete("/employees/{employee_id}/delete")
+@app.delete("/employees/{employee_id}")
 def delete_user(employee_id: int):
     with Session(engine) as sess:
         user = sess.scalars(
                 select(Employee).where(Employee.id == employee_id)
         ).unique().one()
         sess.delete(user)
+        sess.commit()
 
 # endregion -------------------------------------
