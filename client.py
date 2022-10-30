@@ -438,8 +438,8 @@ def log_in(page):
 
 def sign_up_user(page):
     #Collect data
-    user_id = page.views[-1].controls[4].content.value
-    logger.debug(f"user_id = {user_id}")
+    user_name = page.views[-1].controls[4].content.value
+    logger.debug(f"user_name = {user_name}")
     dmy_row = page.views[-1].controls[6]
     logger.debug(f"dmy_row = {dmy_row}")
     dob_str = "-".join([f"{ctrl.content.value!s}" for ctrl in dmy_row.controls])
@@ -457,11 +457,11 @@ def sign_up_user(page):
     logger.debug(f"dob_str = {dob_str}")
     allergies_row = page.views[-1].controls[8].content
     allergies = [box.label for box in allergies_row.controls if box.value]
-    logger.info(f"Collected user data: Name='{user_id}'; DOB='{dob_str}'; "
+    logger.info(f"Collected user data: Name='{user_name}'; DOB='{dob_str}'; "
                 f"Allergies='{allergies}'")
     # Check user does not already exist
-    potential_user = requests.get(f"{SERVER_URL}/employees/{user_id}").json() 
-    logger.info(f"Tried to fetch user {user_id}, found {potential_user}")
+    potential_user = requests.get(f"{SERVER_URL}/employees/name/{user_name}").json() 
+    logger.info(f"Tried to fetch user {user_name}, found {potential_user}")
     user_exists = potential_user is not None
     if user_exists:
         page.snack_bar = SnackBar(
@@ -473,7 +473,7 @@ def sign_up_user(page):
         return
     #Budle and do POST request
     data = {
-        "name": user_id,
+        "name": user_name,
         "birthday": dob_str,
         "allergies": allergies
     }
@@ -483,7 +483,8 @@ def sign_up_user(page):
         headers = {'Content-type': 'application/json'}
     )
     #Switch to main cake dashboard
-    # TODO fetch new id and save to cache
+    new_user = requests.get(f"{SERVER_URL}/employees/name/{user_name}").json()
+    usr_cache.write_text(json.dumps(new_user) + '\n')
     page.go("/main")
 
 def update_user_details(page):
@@ -589,7 +590,6 @@ def delete_user(page):
     page.dialog = alert_dialog
     alert_dialog.open = True
     page.update()
-
 
 def submit_cake(page):
     # Read from GUI
