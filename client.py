@@ -551,9 +551,6 @@ def submit_cake(page):
 
 # region Request data from server ------------------
 
-def get_user_details():
-    pass
-
 def get_assigned_employee():
     cached_user = json.loads(usr_cache.read_text())
     assigned_employee = requests.get(
