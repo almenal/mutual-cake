@@ -773,7 +773,7 @@ def get_user_details(user_id, id_type='id'):
     if id_type == 'id':
         return requests.get(f"{SERVER_URL}/employees/{user_id}").json()
     if id_type == 'name':
-        return requests.get(f"{SERVER_URL}/employees/{user_id}").json()
+        return requests.get(f"{SERVER_URL}/employees/name/{user_id}").json()
 
 def get_assigned_employee():
     cached_user = json.loads(usr_cache.read_text())
