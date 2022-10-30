@@ -34,6 +34,7 @@ def main(page: Page):
 
     def handle_route(e):
         all_ingredients = get_all_ingredients()
+        logger.info(f"Fetched all ingredients: {all_ingredients}")
         logger.info(f"Route change: {e.route}")
         page.views.clear()
         page.views.append(
@@ -255,7 +256,12 @@ def main(page: Page):
             )
         if page.route == "/main/user":
             cached_user = json.loads(usr_cache.read_text())
-            user_allergies = ["Nuts", "Milk"]
+            user_data = (
+                requests.get(f"{SERVER_URL}/employees/{cached_user['id']}")
+                .json()
+            )
+            logger.info(f"Fetched data for user '{cached_user['id']}': {user_data}")
+            user_allergies = [x['name'].capitalize() for x in user_data['allergies']]
             page.views.append(
                 View(
                     route = "/main/user",
@@ -275,7 +281,7 @@ def main(page: Page):
                                     ),
                                     Container(
                                         TextField(label = "User ID",
-                                                value = cached_user["id"],
+                                                value = user_data["id"],
                                                 disabled = True),
                                         margin = margin.only(bottom = 10)
                                     ),
@@ -291,12 +297,12 @@ def main(page: Page):
                                 Column(controls = [
                                     Container(
                                         TextField(label = "Full name",
-                                                value = cached_user["name"]),
+                                                value = user_data["name"]),
                                         margin = margin.only(bottom=10, top=25)
                                     ),
                                     Container(
                                         TextField(label = "Date of birth",
-                                                value = cached_user["birthday"],
+                                                value = user_data["birthday"],
                                                 hint_text = "YYYY-MM-DD"),
                                         margin = margin.only(bottom=10)
                                     ),
@@ -307,8 +313,10 @@ def main(page: Page):
                                         spacing=5,
                                         run_spacing=5,
                                         controls = [
-                                            Checkbox(label = x,
-                                                    value = x in user_allergies)
+                                            Checkbox(
+                                                label = x,
+                                                value = x in user_allergies
+                                            )
                                             for x in all_ingredients
                                         ],
                                     )
@@ -402,10 +410,7 @@ def log_in(page):
     login_view = page.views[-1]
     user   = login_view.controls[1].content.value
     logger.info(f"User is '{user}'")
-    user_data_response = requests.get(
-        url = f"{SERVER_URL}/employees/{user}"
-    )
-    user_data = user_data_response.json()
+    user_data = requests.get(url = f"{SERVER_URL}/employees/{user}").json()
     if user_data is None:
         logger.info(f"User {user} not registered")
         page.snack_bar = SnackBar(
@@ -508,6 +513,7 @@ def update_user_details(page):
     )
     page.snack_bar.open = True
     page.update()
+    page.go('/main/user')
 
 def submit_cake(page):
     # Read from GUI
@@ -524,8 +530,8 @@ def submit_cake(page):
         "previewDescription" : cake_descr,
         "ingredients"        : cake_ingredients,
     }
-    logger.info(f"Collected cake data: Name='{cake_name}'; Descr='{cake_descr}'; "
-                f"Ingredients='{cake_ingredients}'")
+    logger.info(f"Collected cake data: Name='{cake_name}'; Descr= "
+                f"'{cake_descr}'; Ingredients='{cake_ingredients}'")
     # POST
     requests.post(
         url = f"{SERVER_URL}/cakes/",
