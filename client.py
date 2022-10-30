@@ -440,7 +440,8 @@ def main(page: Page):
             )
         if page.route == "/main/change-cake":
             this_user_id = json.loads(usr_cache.read_text())['id']
-            current_cake = get_cake_details()["name"]
+            current_cake = (cake["name"] if (cake := get_cake_details()) 
+                            is not None else None)
             all_cakes = get_all_cakes()
             page.views.append(
                 View(
@@ -572,7 +573,22 @@ def sign_up_user(page):
     #Switch to main cake dashboard
     new_user = get_user_details(user_name, id_type='name')
     usr_cache.write_text(json.dumps(new_user) + '\n')
-    page.go("/main")
+
+    def press_ok(e):
+        page.dialog.open = False
+        page.update()
+        page.go("/main")
+
+    page.dialog = AlertDialog(
+        title = Text("Success"),
+        content= Text(
+            f"Your user name is: {new_user['id']} \nUse it for your next login"
+        ),
+        actions = [TextButton("OK", on_click = press_ok)],
+        on_dismiss = press_ok
+    )
+    page.dialog.open = True
+    page.update()
 
 def update_user_details(page):
     cached_user = json.loads(usr_cache.read_text())['id']
