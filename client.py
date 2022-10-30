@@ -415,8 +415,8 @@ def main(page: Page):
 
     page.on_route_change = handle_route
     page.on_view_pop = view_pop
-    # page.on_disconnect = clear_cache
-    # page.on_close = clear_cache
+    page.on_disconnect = clear_cache
+    page.on_close = clear_cache
     page.go(page.route)
 
 
