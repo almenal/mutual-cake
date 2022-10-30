@@ -79,7 +79,7 @@ def fetch_employee_data(employee_id:int):
         )
 
 @app.get("/employees/name/{employee_name}")
-def fetch_employee_data(employee_name: str):
+def fetch_employee_data_by_name(employee_name: str):
     ""
     with Session(engine) as sess:
         return (
