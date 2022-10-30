@@ -627,7 +627,19 @@ def delete_user(page):
     page.update()
 
 def choose_new_partner(page):
-    pass
+    user_id = json.loads(usr_cache.read_text())['id']
+    new_partner_id = page.view[-1].controls[1].content.value
+    logger.info(f"New partner id: {new_partner_id}")
+    new_partner = get_user_details(new_partner_id)
+    logger.info(f"New partner name: {new_partner['name']}")
+    response = requests.put(
+        f"{SERVER_URL}/employees/{user_id}/new_patner/{new_partner_id}"
+    )
+    if response.ok:
+        logger.info("New partner has been selected")
+    else:
+        logger.error(f"New partner could not be set: {response.content}")
+
 
 def choose_new_cake(page):
     pass
