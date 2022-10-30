@@ -44,8 +44,22 @@ def list_all_allergens():
     with Session(engine) as sess:
         res = sorted(set([
             ingredient.capitalize() for ingredient in \
-            sess.scalars(select(Ingredient.name)).unique().all()
+            sess.scalars(select(Employee)).unique().all()
         ]))
+        return res
+
+@app.get("/employees/all")
+def list_all_employees():
+    with Session(engine) as sess:
+        all_employees = sess.scalars(select(Employee)).unique().all()
+        res = sorted(all_employees, key=lambda emp: emp.name)
+        return res
+
+@app.get("/cakes/all")
+def list_all_cakes():
+    with Session(engine) as sess:
+        all_cakes = sess.scalars(select(Cake)).unique().all()
+        res = sorted(all_cakes, key=lambda cake: cake.name)
         return res
 
 # endregion -------------------------------------
