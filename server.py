@@ -258,6 +258,26 @@ def choose_new_partner(employee_id:int, partner_id:int):
             )
         sess.commit()
 
+@app.put("/employees/{employee_id}/new_cake/{cake_id}")
+def choose_new_cake(employee_id:int, cake_id:int):
+    with Session(engine) as sess:
+        existing_assignment = sess.scalars(
+            select(Assignment)
+            .where(Assignment.fromId == employee_id)
+        ).one_or_none()
+        
+        if existing_assignment is not None:
+            existing_assignment.cakeId = cake_id
+        else:
+            sess.add(
+                Assignment(
+                    fromId = employee_id,
+                    toId = None, 
+                    cakeId = cake_id
+                )
+            )
+        sess.commit()
+
 # endregion -------------------------------------
 
 
