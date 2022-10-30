@@ -10,7 +10,7 @@ from flet import (
     Page, View, Container, AppBar, Row, Column, ListView, Divider,
     Image, Text, Markdown, SnackBar, Icon, icons,
     TextField,  ElevatedButton, TextButton, Dropdown, IconButton, Checkbox, 
-    AlertDialog,
+    AlertDialog, RadioGroup, Radio,
     margin, dropdown, alignment
 )
 
@@ -212,11 +212,11 @@ def main(page: Page):
                             controls = [
                                 ElevatedButton(
                                     "Change partner",
-                                    on_click = lambda _: None#page.go("/main/change-partner")
+                                    on_click = lambda _: page.go("/main/change-partner")
                                 ),
                                 ElevatedButton(
                                     "Change cake",
-                                    on_click = lambda _: None#page.go("/main/change-cake")
+                                    on_click = lambda _: page.go("/main/change-cake")
                                 ),
                                 ElevatedButton(
                                     "Add your own cake recipe!",
@@ -267,10 +267,7 @@ def main(page: Page):
             )
         if page.route == "/main/user":
             cached_user = json.loads(usr_cache.read_text())
-            user_data = (
-                requests.get(f"{SERVER_URL}/employees/{cached_user['id']}")
-                .json()
-            )
+            user_data = get_user_details(cached_user['id'])
             logger.info(f"Fetched data for user '{cached_user['id']}': {user_data}")
             user_allergies = [x['name'].capitalize() for x in user_data['allergies']]
             page.views.append(
@@ -402,6 +399,10 @@ def main(page: Page):
                 )
             
             )
+        if page.route == "/main/change-partner":
+            pass
+        if page.route == "/main/change-cake":
+            pass
 
     def view_pop(e):
         logger.info(f"View pop @ {e.view.route}: {e.view}")
@@ -428,7 +429,7 @@ def log_in(page):
     login_view = page.views[-1]
     user   = login_view.controls[1].content.value
     logger.info(f"User is '{user}'")
-    user_data = requests.get(url = f"{SERVER_URL}/employees/{user}").json()
+    user_data = get_user_details(user)
     if user_data is None:
         logger.info(f"User {user} not registered")
         page.snack_bar = SnackBar(
@@ -467,7 +468,7 @@ def sign_up_user(page):
     logger.info(f"Collected user data: Name='{user_name}'; DOB='{dob_str}'; "
                 f"Allergies='{allergies}'")
     # Check user does not already exist
-    potential_user = requests.get(f"{SERVER_URL}/employees/name/{user_name}").json() 
+    potential_user = get_user_details(user_name, id_type='name')
     logger.info(f"Tried to fetch user {user_name}, found {potential_user}")
     user_exists = potential_user is not None
     if user_exists:
@@ -490,16 +491,13 @@ def sign_up_user(page):
         headers = {'Content-type': 'application/json'}
     )
     #Switch to main cake dashboard
-    new_user = requests.get(f"{SERVER_URL}/employees/name/{user_name}").json()
+    new_user = get_user_details(user_name, id_type='name')
     usr_cache.write_text(json.dumps(new_user) + '\n')
     page.go("/main")
 
 def update_user_details(page):
     cached_user = json.loads(usr_cache.read_text())['id']
-    current_data = (
-        requests.get(f"{SERVER_URL}/employees/{cached_user}")
-        .json()
-    )
+    current_data = get_user_details(cached_user)
     # Fetch allergen names from allergen objects to allow comparisons
     user_allergies = sorted([
         ingredient["name"].lower() for ingredient in current_data["allergies"]
@@ -598,6 +596,12 @@ def delete_user(page):
     alert_dialog.open = True
     page.update()
 
+def choose_new_partner(page):
+    pass
+
+def choose_new_cake(page):
+    pass
+
 def submit_cake(page):
     # Read from GUI
     gui_cake_data = page.views[-1].controls
@@ -634,6 +638,12 @@ def submit_cake(page):
 
 # region Request data from server ------------------
 
+def get_user_details(user_id, id_type='id'):
+    if id_type == 'id':
+        return requests.get(f"{SERVER_URL}/employees/{user_id}").json()
+    if id_type == 'name':
+        return requests.get(f"{SERVER_URL}/employees/{user_id}").json()
+
 def get_assigned_employee():
     cached_user = json.loads(usr_cache.read_text())
     assigned_employee = requests.get(
@@ -667,6 +677,12 @@ def get_cake_details():
 
 def get_all_ingredients():
     return requests.get(url = f"{SERVER_URL}/ingredients/all").json()
+
+def get_all_employees():
+    return requests.get(url = f"{SERVER_URL}/employees/all").json()
+
+def get_all_cakes():
+    return requests.get(url = f"{SERVER_URL}/cakes/all").json()
 
 # endregion -------------------------------------
 
