@@ -193,12 +193,13 @@ def ammend_user_details(employee_id:int, new_details: UserInfo):
     
     with Session(engine) as sess:
         # Update name, dob -----------
-        sess.execute(
-            update(Employee)
-            .where(Employee.id == employee_id)
-            .values(**new_details_)
-        )
-        sess.flush() 
+        if new_details_ != {}:
+            sess.execute(
+                update(Employee)
+                .where(Employee.id == employee_id)
+                .values(**new_details_)
+            )
+            sess.flush()
         # Update allergies -----------
         user = sess.scalars(
             select(Employee).where(Employee.id == employee_id)
