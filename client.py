@@ -400,6 +400,7 @@ def main(page: Page):
             
             )
         if page.route == "/main/change-partner":
+            this_user_id = json.loads(usr_cache.read_text())['id']
             all_employees = get_all_employees()
             page.views.append(
                 View(
@@ -422,6 +423,7 @@ def main(page: Page):
                                     Radio(value=emp['id'],
                                             label=emp['name'])
                                     for emp in all_employees
+                                    if emp['id'] != this_user_id
                                 ])
                             ),
                             margin = margin.only(top = 20, left = 75)
