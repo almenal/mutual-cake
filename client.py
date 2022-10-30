@@ -409,8 +409,8 @@ def log_in(page):
     if user_data is None:
         logger.info(f"User {user} not registered")
         page.snack_bar = SnackBar(
-            Text("We cannot seem to find you..."), 
-            color = "#000000", bgcolor = "#ff9955", action="Sign up",
+            Text("We cannot seem to find you...", color = "#000000",), 
+            bgcolor = "#ff9955", action="Sign up",
             on_action = lambda _: page.go("/signup")
         )
         page.snack_bar.open = True
@@ -431,8 +431,9 @@ def sign_up_user(page):
         dob_str = datetime.strptime(dob_str, "%d-%b-%Y").strftime("%Y-%m-%d")
     except:
         page.snack_bar = SnackBar(
-            Text("Invalid date, please chose one option in each box."),
-            color = "#000000", bgcolor = "#ff9955"
+            Text("Invalid date, please chose one option in each box.", 
+                    color = "#000000"),
+            bgcolor = "#ff9955"
         )
         page.snack_bar.open = True
         page.update()
@@ -448,8 +449,8 @@ def sign_up_user(page):
     user_exists = potential_user is not None
     if user_exists:
         page.snack_bar = SnackBar(
-            Text("That username is already chosen"),
-            color = "#000000", bgcolor = "#ff9955"
+            Text("That username is already chosen", color = "#000000",),
+            bgcolor = "#ff9955"
         )
         page.snack_bar.open = True
         page.update()
@@ -533,8 +534,8 @@ def submit_cake(page):
     )
     # Notify
     page.snack_bar = SnackBar(
-        Text("New cake recipe has been submitted!"), 
-        color = "#000000", bgcolor = "#92bce2ff",
+        Text("New cake recipe has been submitted!", color = "#000000"), 
+        bgcolor = "#92bce2ff",
     )
     page.snack_bar.open = True
     page.update()
@@ -543,6 +544,9 @@ def submit_cake(page):
 # endregion -------------------------------------
 
 # region Request data from server ------------------
+
+def get_user_details():
+    pass
 
 def get_assigned_employee():
     cached_user = json.loads(usr_cache.read_text())
