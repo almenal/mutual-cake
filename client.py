@@ -26,6 +26,7 @@ usr_cache = root / '.usr_cache'
 SERVER_URL = "http://127.0.0.1:8000"
 OK_COLOR = "#92bce2ff"
 WARN_COLOR = "#ff9955"
+DANGER_COLOR = "#c73440ff"
 
 def main(page: Page):
     logger.info("Setting up page")
@@ -290,7 +291,14 @@ def main(page: Page):
                                     ElevatedButton(
                                         "Update details",
                                         on_click=lambda _:
-                                            update_user_details(page))
+                                            update_user_details(page)
+                                    ),
+                                    ElevatedButton(
+                                        "Delete profile",
+                                        color = "#ffffff",
+                                        bgcolor = DANGER_COLOR,
+                                        on_click=lambda _: delete_user(page)
+                                    )
                                     ],
                                     alignment = "start",
                                     horizontal_alignment="center"
@@ -547,6 +555,9 @@ def update_user_details(page):
     page.snack_bar.open = True
     page.update()
     page.go('/main/user')
+
+def delete_user(page):
+    pass
 
 def submit_cake(page):
     # Read from GUI
