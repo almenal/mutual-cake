@@ -82,12 +82,12 @@ def main(page: Page):
                         Markdown("Please fill in your details to continue"),
                         
                         Container(
-                            Markdown("## 1. Choose a User ID"),
+                            Markdown("## 1. Enter yout name"),
                             margin = margin.only(top = 50)
                         ),
                         Container(
                             content = TextField(label = None,
-                                                hint_text = "Choose a user ID"),
+                                                hint_text = "John Doe"),
                             width = 600,
                         ),
                         
