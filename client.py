@@ -474,8 +474,8 @@ def main(page: Page):
                             margin = margin.only(top = 20, left = 75)
                         ),
                         Container(
-                            ElevatedButton("Choose new partner",
-                                on_click=lambda _: choose_new_partner(page)),
+                            ElevatedButton("Choose new cake",
+                                on_click=lambda _: choose_new_cake(page)),
                             margin = margin.only(top = 50),
                             alignment=alignment.center
                         ),
