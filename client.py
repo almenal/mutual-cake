@@ -408,6 +408,10 @@ def main(page: Page):
                     horizontal_alignment = "start",
                     scroll='auto',
                     controls = [
+                        AppBar(
+                            title = Text("Choose a new partner"),
+                            color = "#000000", bgcolor=APPBAR_COLOR
+                        ),
                         Container(
                             Markdown("## Your colleagues:"),
                             margin = margin.only(top = 50, left = 50)
@@ -424,7 +428,7 @@ def main(page: Page):
                         ),
                         Container(
                             ElevatedButton("Choose new partner", 
-                                on_click=lambda _: choose_new_partner),
+                                on_click=lambda _: choose_new_partner(page)),
                             margin = margin.only(top = 50),
                             alignment=alignment.center
                         ),
@@ -628,17 +632,26 @@ def delete_user(page):
 
 def choose_new_partner(page):
     user_id = json.loads(usr_cache.read_text())['id']
-    new_partner_id = page.view[-1].controls[1].content.value
+    new_partner_id = page.views[-1].controls[2].content.value
     logger.info(f"New partner id: {new_partner_id}")
     new_partner = get_user_details(new_partner_id)
-    logger.info(f"New partner name: {new_partner['name']}")
+    logger.info(f"New partner info: {new_partner}")
     response = requests.put(
         f"{SERVER_URL}/employees/{user_id}/new_patner/{new_partner_id}"
     )
     if response.ok:
         logger.info("New partner has been selected")
+        txt = Text("New partner chosen", color = "#000000")
+        bg_color = OK_COLOR
     else:
         logger.error(f"New partner could not be set: {response.content}")
+        txt = Text(f"Could not change partner: {response.content}",
+                     color = "#000000")
+        bg_color = WARN_COLOR
+    page.snack_bar = SnackBar(txt, bgcolor = bg_color)
+    page.snack_bar.open = True
+    page.update()
+    # page.go("/main")
 
 
 def choose_new_cake(page):
