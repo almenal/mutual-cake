@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 root = Path(__file__).parent
 usr_cache = root / '.usr_cache'
 SERVER_URL = "http://127.0.0.1:8000"
+OK_COLOR = "#92bce2ff"
+WARN_COLOR = "#ff9955"
 
 def main(page: Page):
     logger.info("Setting up page")
@@ -415,7 +417,7 @@ def log_in(page):
         logger.info(f"User {user} not registered")
         page.snack_bar = SnackBar(
             Text("We cannot seem to find you...", color = "#000000",), 
-            bgcolor = "#ff9955", action="Sign up",
+            bgcolor = WARN_COLOR, action="Sign up",
             on_action = lambda _: page.go("/signup")
         )
         page.snack_bar.open = True
@@ -438,7 +440,7 @@ def sign_up_user(page):
         page.snack_bar = SnackBar(
             Text("Invalid date, please chose one option in each box.", 
                     color = "#000000"),
-            bgcolor = "#ff9955"
+            bgcolor = WARN_COLOR
         )
         page.snack_bar.open = True
         page.update()
@@ -455,7 +457,7 @@ def sign_up_user(page):
     if user_exists:
         page.snack_bar = SnackBar(
             Text("That username is already chosen", color = "#000000",),
-            bgcolor = "#ff9955"
+            bgcolor = WARN_COLOR
         )
         page.snack_bar.open = True
         page.update()
@@ -510,11 +512,10 @@ def update_user_details(page):
     if response.ok:
         banner_text = Text("User details updated successfully",
                             color = "#000000")
-        banner_bg_color = "#92bce2ff"
+        banner_bg_color = OK_COLOR
     else:
         try:
             response_content = json.loads(response.content.decode())
-            logger.error(f"PUT request failed: {response_content}")
             error_msg = response_content['detail'][0]['msg']
             error_msg = (error_msg if len(error_msg) < 50 
                         else f"{error_msg[:45]}...")
@@ -524,7 +525,7 @@ def update_user_details(page):
             f"ERROR: Details could not be updated. Cause: '{error_msg}'", 
             color = "#000000"
         )
-        banner_bg_color = "#ff9955"
+        banner_bg_color = WARN_COLOR
     page.snack_bar = SnackBar(banner_text, bgcolor = banner_bg_color)
     page.snack_bar.open = True
     page.update()
@@ -556,7 +557,7 @@ def submit_cake(page):
     # Notify
     page.snack_bar = SnackBar(
         Text("New cake recipe has been submitted!", color = "#000000"), 
-        bgcolor = "#92bce2ff",
+        bgcolor = OK_COLOR,
     )
     page.snack_bar.open = True
     page.update()
