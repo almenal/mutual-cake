@@ -37,7 +37,7 @@ class CakeInfo(BaseModel):
 # endregion -------------------------------------
 
 
-# region Get joined info  ------------------
+# region List all entries of one table  ------------------
 
 @app.get("/ingredients/all")
 def list_all_allergens():
@@ -213,5 +213,18 @@ def ammend_user_details(employee_id:int, new_details: UserInfo):
             user.allergies = new_allergies_records
         
         sess.commit()
+
+# endregion -------------------------------------
+
+
+# region DELETE data ------------------
+
+@app.delete("/employees/{employee_id}/delete")
+def delete_user(employee_id: int):
+    with Session(engine) as sess:
+        user = sess.scalars(
+                select(Employee).where(Employee.id == employee_id)
+        ).unique().one()
+        sess.delete(user)
 
 # endregion -------------------------------------
