@@ -232,6 +232,7 @@ def main(page: Page):
             )
         if page.route == "/main/cake":
             cake_data = get_cake_details()
+            logging.info(f"Retrieved dake data: {cake_data}")
             ingredients_md_list = "\n".join(sorted({
                 f"- {ingr['name'].capitalize()}" 
                 for ingr in cake_data['ingredients']
@@ -438,7 +439,49 @@ def main(page: Page):
                 )
             )
         if page.route == "/main/change-cake":
-            pass
+            this_user_id = json.loads(usr_cache.read_text())['id']
+            current_cake = get_cake_details()["name"]
+            all_cakes = get_all_cakes()
+            page.views.append(
+                View(
+                    route = "/main/newcake",
+                    vertical_alignment = "start",
+                    horizontal_alignment = "start",
+                    scroll='auto',
+                    controls = [
+                        AppBar(
+                            title = Text("Choose a new partner"),
+                            color = "#000000", bgcolor=APPBAR_COLOR
+                        ),
+                        Container(
+                            Markdown("## Your colleagues:"),
+                            margin = margin.only(top = 50, left = 50)
+                        ),
+                        Container(
+                            RadioGroup(
+                                content = Column(controls = [
+                                    Radio(
+                                        value=emp['id'],
+                                        label=(
+                                            x
+                                            if (x := emp['name']) != current_cake
+                                            else f"[Yours] {x}"
+                                        )
+                                    )
+                                    for emp in all_cakes
+                                ]),
+                            ),
+                            margin = margin.only(top = 20, left = 75)
+                        ),
+                        Container(
+                            ElevatedButton("Choose new partner",
+                                on_click=lambda _: choose_new_partner(page)),
+                            margin = margin.only(top = 50),
+                            alignment=alignment.center
+                        ),
+                    ]
+                )
+            )
 
     def view_pop(e):
         logger.info(f"View pop @ {e.view.route}: {e.view}")
@@ -653,8 +696,6 @@ def choose_new_partner(page):
     page.snack_bar = SnackBar(txt, bgcolor = bg_color)
     page.snack_bar.open = True
     page.update()
-    # page.go("/main")
-
 
 def choose_new_cake(page):
     pass
