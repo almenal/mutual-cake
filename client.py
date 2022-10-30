@@ -477,37 +477,53 @@ def sign_up_user(page):
     page.go("/main")
 
 def update_user_details(page):
-    cached_data = json.loads(usr_cache.read_text())
-    cached_user = cached_data['id']
-    user_allergies = [x["name"].capitalize() for x in cached_data["allergies"]]
-    cached_data["allergies"] = user_allergies
-    logger.info(f"Sanitised cached data: {cached_data}")
+    cached_user = json.loads(usr_cache.read_text())['id']
+    current_data = (
+        requests.get(f"{SERVER_URL}/employees/{cached_user}")
+        .json()
+    )
+    # Fetch allergen names from allergen objects to allow comparisons
+    user_allergies = sorted([
+        ingredient["name"].lower() for ingredient in current_data["allergies"]
+    ])
+    current_data["allergies"] = user_allergies
+    logger.info(f"Fetched current data: {current_data}")
     # Retrieve data from UI Controls
     updateable_user_data = page.views[-1].controls[1].controls[1].controls
-    user_name = updateable_user_data[0].content.value
-    user_dob  = updateable_user_data[1].content.value
-    user_allergies = [
-        ingredient.label for ingredient in updateable_user_data[3].controls
+    new_user_name = updateable_user_data[0].content.value
+    new_user_dob  = updateable_user_data[1].content.value
+    new_user_allergies = sorted([
+        ingredient.label.lower() 
+        for ingredient in updateable_user_data[3].controls
         if ingredient.value # i.e. if checkbox checked
-    ]
-    logger.info(f"Updated details: Name={user_name}; DOB={user_dob}; "
-                f"Allergies={user_allergies}")
+    ])
+    logger.info(f"Updated details: Name={new_user_name}; DOB={new_user_dob}; "
+                f"Allergies={new_user_allergies}")
     # Bundle and send PUT request
     updated_user_data = {
-        "name": user_name,
-        "birthday": user_dob,
-        "allergies": user_allergies
+        "name"     : new_user_name,
+        "birthday" : new_user_dob,
+        "allergies": new_user_allergies
     }
     user_data_to_put = {
         k:v for k,v in updated_user_data.items()
-        if k not in ["id"] and v != cached_data[k]
+        if k != "id" and v != current_data[k]
     }
+    logger.info(f"Submitting data: {user_data_to_put}")
+    # Early skip is no new data
+    if user_data_to_put == {}:
+        banner_text = Text("You have not modified any detail", color="#000000")
+        page.snack_bar = SnackBar(banner_text, bgcolor = WARN_COLOR)
+        page.snack_bar.open = True
+        page.update()
+        page.go('/main/user')
+        return
+
     response = requests.put(
         url = f"{SERVER_URL}/employees/{cached_user}/update",
         data = json.dumps(user_data_to_put), #updated_user_data),
         headers = {'Content-type': 'application/json'}
     )
-    
     # Notify user
     if response.ok:
         banner_text = Text("User details updated successfully",
@@ -515,6 +531,7 @@ def update_user_details(page):
         banner_bg_color = OK_COLOR
     else:
         try:
+            logger.error(f"PUT request failed: {response.content}")
             response_content = json.loads(response.content.decode())
             error_msg = response_content['detail'][0]['msg']
             error_msg = (error_msg if len(error_msg) < 50 
