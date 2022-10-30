@@ -149,13 +149,18 @@ def main(page: Page):
                 )
             )
         if page.route.startswith("/main"):
+            user_name = json.loads(usr_cache.read_text())['name']
             birthday_person = get_assigned_employee()
             cake_to_bake    = get_assigned_cake()
+            cake_details_button_visible = (
+                False if "You have not chosen any cake" in cake_to_bake
+                else True
+            )
             page.views.append(
                 View(
                     route = "/main",
                     controls = [
-                        AppBar(title=Text("Main dashboard"), 
+                        AppBar(title=Text(f"Hello, {user_name}"), 
                                 color = "#000000", bgcolor=APPBAR_COLOR),
                         Container(
                             Row(
@@ -192,6 +197,8 @@ def main(page: Page):
                                     ),
                                     ElevatedButton(
                                         "Show cake details",
+                                        visible = cake_details_button_visible,
+                                        disabled = not cake_details_button_visible,
                                         on_click = lambda _: page.go("/main/cake")
                                     )
                                 ], horizontal_alignment="center"),
@@ -634,7 +641,8 @@ def get_assigned_employee():
     ).json()
     if assigned_employee is None:
         logger.info(f"User: {cached_user!s} has nobody to bake to!")
-        return
+        return ("You have not been assigned to any employee.\n"
+                "Click on 'Change partner' to choose one.")
     return assigned_employee
 
 def get_assigned_cake():
@@ -644,6 +652,8 @@ def get_assigned_cake():
     ).json()
     if assigned_cake is None:
         logger.info(f"User: {cached_user!s} has nothing to bake!")
+        return ("You have not chosen any cake.\n"
+                "Click on 'Change cake' to choose one.")
     return assigned_cake
 
 def get_cake_details():
