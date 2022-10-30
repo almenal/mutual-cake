@@ -500,17 +500,32 @@ def update_user_details(page):
         k:v for k,v in updated_user_data.items()
         if k not in ["id"] and v != cached_data[k]
     }
-    requests.put(
+    response = requests.put(
         url = f"{SERVER_URL}/employees/{cached_user}/update",
         data = json.dumps(user_data_to_put), #updated_user_data),
         headers = {'Content-type': 'application/json'}
     )
-
+    
     # Notify user
-    page.snack_bar = SnackBar(
-        Text("User details updated successfully", color = "#000000"), 
-        bgcolor = "#92bce2ff",
-    )
+    if response.ok:
+        banner_text = Text("User details updated successfully",
+                            color = "#000000")
+        banner_bg_color = "#92bce2ff"
+    else:
+        try:
+            response_content = json.loads(response.content.decode())
+            logger.error(f"PUT request failed: {response_content}")
+            error_msg = response_content['detail'][0]['msg']
+            error_msg = (error_msg if len(error_msg) < 50 
+                        else f"{error_msg[:45]}...")
+        except:
+            error_msg = "Could not retrieve error msg"
+        banner_text = Text(
+            f"ERROR: Details could not be updated. Cause: '{error_msg}'", 
+            color = "#000000"
+        )
+        banner_bg_color = "#ff9955"
+    page.snack_bar = SnackBar(banner_text, bgcolor = banner_bg_color)
     page.snack_bar.open = True
     page.update()
     page.go('/main/user')
