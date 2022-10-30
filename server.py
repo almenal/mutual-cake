@@ -44,7 +44,7 @@ def list_all_allergens():
     with Session(engine) as sess:
         res = sorted(set([
             ingredient.capitalize() for ingredient in \
-            sess.scalars(select(Employee)).unique().all()
+            sess.scalars(select(Ingredient.name)).unique().all()
         ]))
         return res
 
