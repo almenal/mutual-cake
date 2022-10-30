@@ -244,7 +244,7 @@ def choose_new_partner(employee_id:int, partner_id:int):
         existing_assignment = sess.scalars(
             select(Assignment)
             .where(Assignment.fromId == employee_id)
-        ).one_or_none
+        ).one_or_none()
         
         if existing_assignment is not None:
             existing_assignment.toId = partner_id
