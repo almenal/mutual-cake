@@ -9,7 +9,8 @@ import flet
 from flet import (
     Page, View, Container, AppBar, Row, Column, ListView, Divider,
     Image, Text, Markdown, SnackBar, Icon, icons,
-    TextField,  ElevatedButton, TextButton, Dropdown, IconButton, Checkbox,
+    TextField,  ElevatedButton, TextButton, Dropdown, IconButton, Checkbox, 
+    AlertDialog,
     margin, dropdown, alignment
 )
 
@@ -482,6 +483,7 @@ def sign_up_user(page):
         headers = {'Content-type': 'application/json'}
     )
     #Switch to main cake dashboard
+    # TODO fetch new id and save to cache
     page.go("/main")
 
 def update_user_details(page):
@@ -557,7 +559,37 @@ def update_user_details(page):
     page.go('/main/user')
 
 def delete_user(page):
-    pass
+
+    def reply_no(e):
+        alert_dialog.open = False
+        page.update()
+
+    def reply_yes(e):
+        alert_dialog.open = False
+        page.update()
+        cached_user = json.loads(usr_cache.read_text())['id']
+        response = requests.delete(f"{SERVER_URL}/employees/{cached_user}")
+        if response.ok:
+            logger.info("User has been deleted")
+        else:
+            logger.error(f"User could not be deleted: {response.content}")
+        page.go("/login")
+    
+    alert_dialog = AlertDialog(
+        title = Text("WARNING"),
+        content= Text(
+            "This profile will be deleted from MutualCake.\n"
+            "Are you sure you want to proceed?"
+        ),
+        actions = [
+            TextButton("Yes", on_click = reply_yes),
+            TextButton("No", on_click = reply_no),
+        ],
+    )
+    page.dialog = alert_dialog
+    alert_dialog.open = True
+    page.update()
+
 
 def submit_cake(page):
     # Read from GUI
