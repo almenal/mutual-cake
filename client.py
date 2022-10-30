@@ -32,7 +32,7 @@ APPBAR_COLOR = "#f5c300"
 
 def main(page: Page):
     logger.info("Setting up page")
-    page.title = "MutualCake - login"
+    page.title = "MutualCake"
     page.vertical_alignment = "center"
     page.horizontal_alignment = "center"
     page.route = "/login"
