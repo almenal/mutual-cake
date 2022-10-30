@@ -698,7 +698,24 @@ def choose_new_partner(page):
     page.update()
 
 def choose_new_cake(page):
-    pass
+    user_id = json.loads(usr_cache.read_text())['id']
+    new_cake_id = page.views[-1].controls[2].content.value
+    logger.info(f"New partner id: {new_cake_id}")
+    response = requests.put(
+        f"{SERVER_URL}/employees/{user_id}/new_cake/{new_cake_id}"
+    )
+    if response.ok:
+        logger.info("New cake has been selected")
+        txt = Text("New cake chosen", color = "#000000")
+        bg_color = OK_COLOR
+    else:
+        logger.error(f"New cake could not be set: {response.content}")
+        txt = Text(f"Could not change cake: {response.content}",
+                     color = "#000000")
+        bg_color = WARN_COLOR
+    page.snack_bar = SnackBar(txt, bgcolor = bg_color)
+    page.snack_bar.open = True
+    page.update()
 
 def submit_cake(page):
     # Read from GUI
