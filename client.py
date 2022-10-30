@@ -405,7 +405,7 @@ def main(page: Page):
             all_employees = get_all_employees()
             page.views.append(
                 View(
-                    route = "/main/newcake",
+                    route = "/main/change-partner",
                     vertical_alignment = "start",
                     horizontal_alignment = "start",
                     scroll='auto',
@@ -444,17 +444,17 @@ def main(page: Page):
             all_cakes = get_all_cakes()
             page.views.append(
                 View(
-                    route = "/main/newcake",
+                    route = "/main/change-cake",
                     vertical_alignment = "start",
                     horizontal_alignment = "start",
                     scroll='auto',
                     controls = [
                         AppBar(
-                            title = Text("Choose a new partner"),
+                            title = Text("Choose a new cake"),
                             color = "#000000", bgcolor=APPBAR_COLOR
                         ),
                         Container(
-                            Markdown("## Your colleagues:"),
+                            Markdown("## Our cakes:"),
                             margin = margin.only(top = 50, left = 50)
                         ),
                         Container(
