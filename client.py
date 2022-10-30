@@ -27,6 +27,7 @@ SERVER_URL = "http://127.0.0.1:8000"
 OK_COLOR = "#92bce2ff"
 WARN_COLOR = "#ff9955"
 DANGER_COLOR = "#c73440ff"
+APPBAR_COLOR = "#f5c300"
 
 def main(page: Page):
     logger.info("Setting up page")
@@ -75,7 +76,7 @@ def main(page: Page):
                     route = "/signup",
                     controls = [
                         AppBar(title=Text("Sign up"), 
-                                color = "#000000", bgcolor="#f5c300"),
+                                color = "#000000", bgcolor=APPBAR_COLOR),
                         Markdown("# Welcome to MutualCake ™️"),
                         Markdown("Please fill in your details to continue"),
                         
@@ -154,7 +155,7 @@ def main(page: Page):
                     route = "/main",
                     controls = [
                         AppBar(title=Text("Main dashboard"), 
-                                color = "#000000", bgcolor="#f5c300"),
+                                color = "#000000", bgcolor=APPBAR_COLOR),
                         Container(
                             Row(
                                 controls = [
@@ -232,10 +233,9 @@ def main(page: Page):
                     route = "/main/cake",
                     controls = [
                         AppBar(
-                            title = Markdown(
-                                f"Details for: __{cake_data['name']}__",
-                            ),
-                            color = "#000000", bgcolor="#f5c300"
+                            title = Text(f"Your cake: {cake_data['name']}",
+                                        color = "#000000"),
+                            bgcolor=APPBAR_COLOR
                         ),
                         Container(
                             Markdown(f"__{cake_data['previewDescription']}__"),
@@ -271,7 +271,7 @@ def main(page: Page):
                     controls = [
                         AppBar(
                             title = Text("Your Profile"),
-                            color = "#000000", bgcolor="#f5c300"
+                            color = "#000000", bgcolor=APPBAR_COLOR
                         ),
                         Row(
                             controls = [
@@ -348,7 +348,7 @@ def main(page: Page):
                     route = "/main/newcake",
                     controls = [
                         AppBar(title=Text("Submit new cake"), 
-                                color = "#000000", bgcolor="#f5c300"),
+                                color = "#000000", bgcolor=APPBAR_COLOR),
                         Markdown("# Submit your own cake"),
                         
                         Container(
