@@ -1,8 +1,6 @@
-<img 
-    src="./assets/logo.png"
-    width=35%
-    height=100% 
-    align="center">
+<div align="center">
+    <img  src="./assets/logo.png" width=15% height=100%>
+</div>
 <h1 align='center'> MutualCake </h1>
 An app for employees to make cakes to each other.
 
