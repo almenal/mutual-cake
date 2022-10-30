@@ -174,14 +174,13 @@ def sign_up_user(new_user: UserInfo):
         sess.add(
             Employee(
                 name = new_user.name,
-                # birthday = datetime.datetime.strptime(new_user.dob, "%Y-%m-%d"),
+                birthday = new_user.birthday,
                 allergies = [
                     Ingredient(name = ingr) for ingr in new_user.allergies
                 ]
             )
         )
         sess.commit()
-    # TODO get users without assignment and assign missing ones
 
 @app.post("/cakes/")
 def submit_cake(new_cake: CakeInfo):
