@@ -427,9 +427,7 @@ def main(page: Page):
                                 content = Column(controls = [
                                     Radio(
                                         value=emp['id'],
-                                        label=(
-                    f"{emp['name']} (Allergic to: "
-                    f"{emp['allergies'] if emp['allergies'] else 'Nothing'})")
+                                        label= format_employee_label(emp)
                                     )
                                     for emp in all_employees
                                     if emp['id'] != this_user_id
@@ -484,14 +482,14 @@ def main(page: Page):
                             RadioGroup(
                                 content = Column(controls = [
                                     Radio(
-                                        value=emp['id'],
+                                        value=cake['id'],
                                         label= format_cake_label(
-                                            emp,
+                                            cake,
                                             current_cake,
                                             partner_allergies
                                         )
                                     )
-                                    for emp in all_cakes
+                                    for cake in all_cakes
                                 ]),
                             ),
                             margin = margin.only(top = 20, left = 75)
@@ -866,12 +864,11 @@ def check_allergens_in_cake(page):
         page.snack_bar.open = True
         page.update()
 
-def format_cake_label(emp, current_cake, partner_allergies):
-    if emp['name'] == current_cake:
-        return f"[Yours] {emp['name']}"
-    if any([x['name'] in partner_allergies for x in emp['ingredients']]):
-        return f"[ALLERGEN] {emp['name']}"
-    return  emp['name']
+def format_cake_label(cake, current_cake, partner_allergies):
+    pass
+
+def format_employee_label(emp):
+    pass
 
 # endregion
 
