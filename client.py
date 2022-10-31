@@ -795,17 +795,31 @@ def get_user_details(user_id, id_type='id'):
     if id_type == 'name':
         return requests.get(f"{SERVER_URL}/employees/name/{user_id}").json()
 
-def get_assigned_employee():
+def get_assigned_employee(user_id=None):
     "Returns NAME of assigned employee"
     cached_user = json.loads(usr_cache.read_text())
+    if user_id is None:
+        user_id = cached_user['id']
     assigned_employee = requests.get(
-        f"{SERVER_URL}/employees/{cached_user['id']}/assignments/employee"
+        f"{SERVER_URL}/employees/{user_id}/assignments/employee"
     ).json()
     if assigned_employee is None:
         logger.info(f"User: {cached_user!s} has nobody to bake to!")
         return ("You have not been assigned to any employee.\n"
                 "Click on 'Change partner' to choose one.")
     return assigned_employee
+
+def get_baker_for_employee(user_id=None):
+    "Returns NAME of the employee who is baking a cake for `user_id`"
+    cached_user = json.loads(usr_cache.read_text())
+    if user_id is None:
+        user_id = cached_user['id']
+    baker_for_employee = requests.get(
+        f"{SERVER_URL}/employees/{user_id}/assignments/baker"
+    ).json()
+    if baker_for_employee is None:
+        logger.info(f"User: {cached_user!s} has nobody to bake to!")
+    return baker_for_employee
 
 def get_assigned_cake(details = False):
     cached_user = json.loads(usr_cache.read_text())
