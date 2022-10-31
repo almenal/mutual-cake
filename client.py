@@ -82,7 +82,7 @@ def main(page: Page):
                         Markdown("Please fill in your details to continue"),
                         
                         Container(
-                            Markdown("## 1. Enter yout name"),
+                            Markdown("## 1. Enter your name"),
                             margin = margin.only(top = 50)
                         ),
                         Container(
