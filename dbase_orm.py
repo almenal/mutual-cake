@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, Date
 from sqlalchemy.orm import declarative_base, relationship
 
+data_folder = Path("data")
+data_folder.mkdir(parents=True, exist_ok=True)
 engine = create_engine('sqlite:///data/db.sqlite3', echo=True)
 Base = declarative_base()
 
