@@ -137,6 +137,19 @@ def fetch_assigned_employee(employee_id:int):
             ).one_or_none()
         )
 
+@app.get("/employees/{employee_id}/assignments/baker")
+def fetch_baker_for_employee(employee_id:int):
+    "Returns employee who is baking a cake for `employee_id`"
+    with Session(engine) as sess:
+        return (
+            sess.scalars(
+                select(Employee.name)
+                .select_from(Assignment)
+                .join(Employee, Employee.id == Assignment.toId)
+                .where(Assignment.toId == employee_id)
+            ).one_or_none()
+        )
+
 @app.get("/employees/{employee_id}/assignments/cake")
 def fetch_assigned_cake(employee_id:int):
     "Return just cake name as opposed to full description"
