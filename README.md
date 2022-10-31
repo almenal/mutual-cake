@@ -29,7 +29,7 @@ delete your profile to quit the app for good.
 1. Create a virtual environment
 
 ```shell
-python -m virtualenv mutualcake
+python -m venv mutualcake
 source mutualcake/bin/activate
 ```
 
@@ -39,7 +39,9 @@ source mutualcake/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-3. Initialize app. The app consists on a server and a client, and you start them both. To do that, run from the terminal
+3. Initialize app. The app consists on a server and a client, 
+so you need to start them both (the server being in the background while
+the client runs). To do that, run from the terminal
 
 ```shell
 bash deploy.sh
