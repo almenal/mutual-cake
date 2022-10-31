@@ -403,6 +403,9 @@ def main(page: Page):
         if page.route == "/main/change-partner":
             this_user_id = json.loads(usr_cache.read_text())['id']
             all_employees = get_all_employees()
+            for employee in all_employees:
+                employee["allergies"] = [x['name'].capitalize() 
+                                        for x in employee["allergies"] ]
             page.views.append(
                 View(
                     route = "/main/change-partner",
@@ -421,8 +424,11 @@ def main(page: Page):
                         Container(
                             RadioGroup(
                                 content = Column(controls = [
-                                    Radio(value=emp['id'],
-                                            label=emp['name'])
+                                    Radio(
+                                        value=emp['id'],
+                                        label=(f"{emp['name']} (Allergic to: "
+                                               f"{emp['allergies'] if emp['allergies'] else 'Nothing'})")
+                                    )
                                     for emp in all_employees
                                     if emp['id'] != this_user_id
                                 ])
