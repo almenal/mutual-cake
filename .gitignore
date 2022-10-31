@@ -3,3 +3,5 @@ mutualcake
 node_modules
 .usr_cache
 **json
+data/
+assets/
