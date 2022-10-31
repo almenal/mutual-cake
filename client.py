@@ -10,7 +10,7 @@ from flet import (
     Page, View, Container, AppBar, Row, Column, ListView, Divider,
     Image, Text, Markdown, SnackBar, Icon, icons,
     TextField,  ElevatedButton, TextButton, Dropdown, IconButton, Checkbox, 
-    AlertDialog, RadioGroup, Radio,
+    AlertDialog, RadioGroup, Radio, Banner,
     margin, dropdown, alignment
 )
 
@@ -156,6 +156,7 @@ def main(page: Page):
                 False if "You have not chosen any cake" in cake_to_bake
                 else True
             )
+            employee_is_allergic_to_cake = check_allergens_in_cake(page)
             page.views.append(
                 View(
                     route = "/main",
@@ -231,7 +232,7 @@ def main(page: Page):
                 )
             )
         if page.route == "/main/cake":
-            cake_data = get_cake_details()
+            cake_data = get_assigned_cake(details=True)
             logging.info(f"Retrieved dake data: {cake_data}")
             ingredients_md_list = "\n".join(sorted({
                 f"- {ingr['name'].capitalize()}" 
@@ -426,8 +427,9 @@ def main(page: Page):
                                 content = Column(controls = [
                                     Radio(
                                         value=emp['id'],
-                                        label=(f"{emp['name']} (Allergic to: "
-                                               f"{emp['allergies'] if emp['allergies'] else 'Nothing'})")
+                                        label=(
+                    f"{emp['name']} (Allergic to: "
+                    f"{emp['allergies'] if emp['allergies'] else 'Nothing'})")
                                     )
                                     for emp in all_employees
                                     if emp['id'] != this_user_id
@@ -446,9 +448,23 @@ def main(page: Page):
             )
         if page.route == "/main/change-cake":
             this_user_id = json.loads(usr_cache.read_text())['id']
-            current_cake = (cake["name"] if (cake := get_cake_details()) 
-                            is not None else None)
+            current_cake = (
+                cake["name"] if (cake := get_assigned_cake(details=True)) 
+                is not None else None
+            )
             all_cakes = get_all_cakes()
+            logger.info(f"All cakes: {all_cakes}")
+            logger.info(f"Current cakes: {current_cake}")
+            assigned_employee_details = get_user_details(
+                get_assigned_employee(),
+                id_type='name'
+            )
+            logger.info(f"Assigned partner: {assigned_employee_details}")
+            partner_allergies = [
+                ingredient['name'].lower() 
+                for ingredient in assigned_employee_details['allergies']
+            ]
+            logger.info(f"Partner's allergies: {partner_allergies}")
             page.views.append(
                 View(
                     route = "/main/change-cake",
@@ -469,10 +485,10 @@ def main(page: Page):
                                 content = Column(controls = [
                                     Radio(
                                         value=emp['id'],
-                                        label=(
-                                            x
-                                            if (x := emp['name']) != current_cake
-                                            else f"[Yours] {x}"
+                                        label= format_cake_label(
+                                            emp,
+                                            current_cake,
+                                            partner_allergies
                                         )
                                     )
                                     for emp in all_cakes
@@ -507,7 +523,7 @@ def main(page: Page):
     page.go(page.route)
 
 
-# region Send data to server ------------------
+# region Send data to server ----------------------------------------
 
 def log_in(page):
     # NOTE: seems more robust but may not be necessary
@@ -771,9 +787,9 @@ def submit_cake(page):
     page.update()
 
 
-# endregion -------------------------------------
+# endregion
 
-# region Request data from server ------------------
+# region Request data from server -----------------------------------
 
 def get_user_details(user_id, id_type='id'):
     if id_type == 'id':
@@ -782,6 +798,7 @@ def get_user_details(user_id, id_type='id'):
         return requests.get(f"{SERVER_URL}/employees/name/{user_id}").json()
 
 def get_assigned_employee():
+    "Returns NAME of assigned employee"
     cached_user = json.loads(usr_cache.read_text())
     assigned_employee = requests.get(
         f"{SERVER_URL}/employees/{cached_user['id']}/assignments/employee"
@@ -821,10 +838,48 @@ def get_all_employees():
 def get_all_cakes():
     return requests.get(url = f"{SERVER_URL}/cakes/all").json()
 
-# endregion -------------------------------------
+# endregion
+
+# region Utils ------------------------------------------------------
 
 def clear_cache(e):
     usr_cache.unlink()
+
+def check_allergens_in_cake(page):
+    cake_to_bake    = get_assigned_cake(details=True)
+    logging.info(f"The cake to bake is {cake_to_bake}")
+    birthday_person = get_assigned_employee()
+    bday_person_details = get_user_details(birthday_person, id_type='name')
+    logging.info(f"The recipient is {bday_person_details}")
+    if not (cake_to_bake or birthday_person or bday_person_details['allergies']):
+        logging.info(f"No allergies to check")
+        return
+    allergies = {x['name'].lower() for x in bday_person_details['allergies']}
+    ingredients = {x['name'].lower() for x in cake_to_bake['ingredients']}
+    logging.info(f"allergies: {allergies} vs ingredients: {ingredients}")
+    
+    if len(allergies & ingredients) > 0:
+        logger.warn(f"User {birthday_person} is allergic to {allergies & ingredients}")
+        page.snack_bar = SnackBar(
+            content=Text(
+                "The cake you selected contains ingredient(s) to which "
+                f"{birthday_person} is allergic: {allergies & ingredients}."
+            ),
+            action="Change cake", 
+            on_action=lambda _: page.go("/main/change-cake"),
+            bgcolor = DANGER_COLOR
+        )
+        page.snack_bar.open = True
+        page.update()
+
+def format_cake_label(emp, current_cake, partner_allergies):
+    if emp['name'] == current_cake:
+        return f"[Yours] {emp['name']}"
+    if any([x['name'] in partner_allergies for x in emp['ingredients']]):
+        return f"[ALLERGEN] {emp['name']}"
+    return  emp['name']
+
+# endregion
 
 
 flet.app(target=main, assets_dir = "assets")
