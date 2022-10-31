@@ -879,10 +879,22 @@ def check_allergens_in_cake(page):
         page.update()
 
 def format_cake_label(cake, current_cake, partner_allergies):
-    pass
+    if cake['name'] == current_cake:
+        return f"[Yours] {cake['name']}"
+    if any([x['name'] in partner_allergies for x in cake['ingredients']]):
+        return f"[ALLERGEN] {cake['name']}"
+    return  cake['name']
 
 def format_employee_label(emp):
-    pass
+    has_no_baker = get_baker_for_employee(emp['id']) is None
+    button =   "🟢"  if has_no_baker else "🔴" 
+    name = emp['name']
+    allergies = (
+        f"(Allergic to: "
+        f"{emp['allergies'] if emp['allergies'] else 'Nothing'})"
+    )
+    return f"{button}    {name} {allergies}"
+
 
 # endregion
 
