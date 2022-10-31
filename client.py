@@ -809,25 +809,19 @@ def get_assigned_employee():
                 "Click on 'Change partner' to choose one.")
     return assigned_employee
 
-def get_assigned_cake():
+def get_assigned_cake(details = False):
     cached_user = json.loads(usr_cache.read_text())
-    assigned_cake = requests.get(
-        f"{SERVER_URL}/employees/{cached_user['id']}/assignments/cake"
-    ).json()
+    url_base = f"{SERVER_URL}/employees/{cached_user['id']}/assignments/cake"
+    url = f"{url_base}/details" if details else url_base
+    assigned_cake = requests.get(url).json()
     if assigned_cake is None:
         logger.info(f"User: {cached_user!s} has nothing to bake!")
+        if details:
+            return
         return ("You have not chosen any cake.\n"
                 "Click on 'Change cake' to choose one.")
+    logger.info(f"User: {cached_user!s} is baking {assigned_cake}")
     return assigned_cake
-
-def get_cake_details():
-    cached_user = json.loads(usr_cache.read_text())
-    assigned_cake_details = requests.get(
-        f"{SERVER_URL}/employees/{cached_user['id']}/assignments/cake/details"
-    ).json()
-    if assigned_cake_details is None:
-        logger.info(f"User: {cached_user!s} has nothing to bake!")
-    return assigned_cake_details
 
 def get_all_ingredients():
     return requests.get(url = f"{SERVER_URL}/ingredients/all").json()
