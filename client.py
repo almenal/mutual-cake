@@ -4,7 +4,7 @@ import json
 import logging
 from pathlib import Path
 from calendar import month_abbr
-from datetime import datetime
+from datetime import datetime, date
 import flet
 from flet import (
     Page, View, Container, AppBar, Row, Column, ListView, Divider,
@@ -151,12 +151,13 @@ def main(page: Page):
         if page.route.startswith("/main"):
             user_name = json.loads(usr_cache.read_text())['name']
             birthday_person = get_assigned_employee()
+            birthday_person_fmt = format_partner_w_birthday(birthday_person)
             cake_to_bake    = get_assigned_cake()
             cake_details_button_visible = (
                 False if "You have not chosen any cake" in cake_to_bake
                 else True
             )
-            employee_is_allergic_to_cake = check_allergens_in_cake(page)
+            check_allergens_in_cake(page)
             page.views.append(
                 View(
                     route = "/main",
@@ -185,7 +186,7 @@ def main(page: Page):
                                         Markdown("## Your cake will be for..."),
                                         margin = margin.only(bottom = 50)
                                     ),
-                                    Text(birthday_person)
+                                    Text(birthday_person_fmt)
                                 ], horizontal_alignment="center"),
                                 Column(controls=[
                                     Container(
@@ -809,6 +810,17 @@ def get_assigned_employee(user_id=None):
                 "Click on 'Change partner' to choose one.")
     return assigned_employee
 
+def format_partner_w_birthday(user_name:str):
+    partner_details = get_user_details(user_name, id_type='name')
+    next_bday, days_to_go = guess_next_birthday(partner_details['birthday'])
+    next_bday_formatted = (
+        f"{user_name}\n"
+         "    on...\n"
+        f"{next_bday}\n\n"
+        f"({days_to_go} days to go!)"
+    )
+    return next_bday_formatted
+
 def get_baker_for_employee(user_id=None):
     "Returns NAME of the employee who is baking a cake for `user_id`"
     cached_user = json.loads(usr_cache.read_text())
@@ -895,6 +907,20 @@ def format_employee_label(emp):
     )
     return f"{button}    {name} {allergies}"
 
+def guess_next_birthday(dob):
+    """Use datetime's '%j' format to guess when the next birthday is
+    
+    %j: Day of the year as a zero-padded decimal number (001, 002, ... 365)"""
+    this_year = date.today().year
+    dob_dt = datetime.strptime(dob, "%Y-%m-%d")
+    dob_day_of_year = int(dob_dt.strftime("%j"))
+    today_day_of_year = int(datetime.now().strftime("%j"))
+    next_bday_year = (this_year + 1
+                      if today_day_of_year > dob_day_of_year 
+                      else this_year)
+    next_bday = date(year = next_bday_year, month = dob_dt.month, day=dob_dt.day)
+    timedelta = (next_bday - date.today()).days
+    return next_bday, timedelta
 
 # endregion
 
