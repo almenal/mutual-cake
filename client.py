@@ -811,6 +811,8 @@ def get_assigned_employee(user_id=None):
     return assigned_employee
 
 def format_partner_w_birthday(user_name:str):
+    if "You have not been assigned to any employee" in user_name:
+        return user_name
     partner_details = get_user_details(user_name, id_type='name')
     next_bday, days_to_go = guess_next_birthday(partner_details['birthday'])
     next_bday_formatted = (
@@ -866,6 +868,8 @@ def clear_cache(e):
 def check_allergens_in_cake(page):
     cake_to_bake    = get_assigned_cake(details=True)
     logging.info(f"The cake to bake is {cake_to_bake}")
+    if cake_to_bake is None:
+        return
     birthday_person = get_assigned_employee()
     bday_person_details = get_user_details(birthday_person, id_type='name')
     logging.info(f"The recipient is {bday_person_details}")
